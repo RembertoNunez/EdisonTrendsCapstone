@@ -16,6 +16,26 @@
 		        <div class="col-md-12 text-center mb-5">
                     <img src="https://trends.edison.tech/assets/img/logo-edison-trends-blue.png">
 			    </div>
+                <form class="form-inline">
+                    <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Select a Feature to Plot</label>
+                    <select class="custom-select my-1 mr-sm-2" id="inlineFormCustomSelectPref">
+                        <option>Choose one...</option>
+                        <option value="myct">myct</option>
+                        <option value="mmin">mmin</option>
+                        <option value="mmax">mmax</option>
+                        <option value="cach">cach</option>
+                        <option value="chmin">chmin</option>
+                        <option value="chmax">chmax</option>
+                        <option value="prp">prp</option>
+                        <option value="erp">erp</option>
+                    </select>
+                    <div class="custom-control custom-checkbox my-1 mr-sm-2">
+                        <input type="checkbox" class="custom-control-input" id="customControlInline">
+                        <label class="custom-control-label" for="customControlInline">Remember my preference</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary my-1">Submit</button>
+                </form>
                 <div class="col-md-12 text-center mb-5">
                     <img src="{% static 'edisontracker/images/bargraph.png' %}">
 			    </div>
