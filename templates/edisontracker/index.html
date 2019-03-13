@@ -52,7 +52,7 @@
                         <label class="custom-control-label" for="customControlInline">Remember my preference</label>
                     </div>
 
-                    <button type="submit" class="btn btn-primary my-1">Submit</button>
+                    <input  id="formSubmit" type="submit" class="btn btn-primary my-1" value="submit">
                 </form>
                 <div class="col-md-12 text-center mb-5">
                     <img src="{% static 'edisontracker/images/bargraph.png' %}">
@@ -64,4 +64,15 @@
         </div>
     </div>
 </body>
+<script>
+    $(document).ready( function() {
+        $("#formSubmit").click(function(event){
+            alert("hu");
+          event.preventDefault();
+          console.log($("#inlineFormCustomSelectPref :selected").val());
+        })
+
+
+    })
+</script>
 </html>
