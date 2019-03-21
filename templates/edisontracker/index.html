@@ -6,14 +6,14 @@
     <title>Home</title>
 {#    Icon#}
     <link rel="icon" href="https://trends.edison.tech/favicon.ico" type="image/x-icon" />
+    {#    Date script#}
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 {#    Bootstrap#}
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-{#    Date script#}
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 </head>
 <body>
@@ -47,6 +47,14 @@
                             });
                         });
                     </script>
+                    <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Company Select</label>
+                  <input class="custom-select my-1 mr-sm-2 mb-3" list="companies" name="company">
+                  <datalist id="companies">
+                   {% for company in company_list %}
+                        <option nam="CompanyName" value = "{{ company }}">
+                   {% endfor %}
+
+              </datalist>
                     <div class="custom-control custom-checkbox my-1 mr-sm-2">
                         <input type="checkbox" class="custom-control-input" id="customControlInline">
                         <label class="custom-control-label" for="customControlInline">Remember my preference</label>
@@ -57,22 +65,30 @@
                 <div class="col-md-12 text-center mb-5">
                     <img src="{% static 'edisontracker/images/bargraph.png' %}">
 			    </div>
-                <div class="col-md-12 text-center mb-5">
-                    <img src="{% static 'edisontracker/images/linegraph.png' %}">
-			    </div>
             </div>
         </div>
     </div>
+
 </body>
 <script>
+
     $(document).ready( function() {
+        console.log("hi");
+            console.log({{ view.get_data }});
+        console.log("bye");
         $("#formSubmit").click(function(event){
             alert("hu");
           event.preventDefault();
           console.log($("#inlineFormCustomSelectPref :selected").val());
-        })
+        });
 
 
-    })
+
+
+
+
+
+    }
+    )
 </script>
 </html>
