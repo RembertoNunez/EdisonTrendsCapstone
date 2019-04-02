@@ -3,6 +3,6 @@ from django.http import JsonResponse
 
 
 def home(request):
-    companyList = ["Burger King", "Jack in the Box", "McDonald", "Taco Bell", "Chipotle Burrito Bar", " Chick-Fil-A", "Wendy's"]
+    companyList = ["Electronics", "Food Delivery", "Apparel", "Footwear", "Sportswear", "Retail (General)", "Grocery", "Pizza"]
     companyList.sort()
     return render(request, 'edisontracker/index.html', {"company_list": companyList})
