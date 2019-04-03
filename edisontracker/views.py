@@ -46,10 +46,6 @@ def mapGenerate(request):
     map_obj.get_root().html.add_child(folium.Element(style_statement))
     map_html = map_obj.get_root().render()
 
-    filename = str(random.randint(1, 9999999999))
-    file = open("edisontracker/static/edisontracker/"+filename + ".html", "w")
-    file.write(map_html)
-    file.close()
-    html = render(request, 'edisontracker/map.html', {"filename": filename})
+    html = render(request, 'edisontracker/map.html', {"map": map_html})
 
     return html
