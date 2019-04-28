@@ -4,6 +4,12 @@ import os
 import random
 import folium
 from uszipcode import SearchEngine
+import pandas as pd
+import matplotlib
+matplotlib.use('PS')
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
 
 def home(request):
     companyList = ["Electronics", "Food Delivery", "Apparel", "Footwear", "Sportswear", "Retail (General)", "Grocery", "Pizza"]
@@ -49,3 +55,4 @@ def mapGenerate(request):
     html = render(request, 'edisontracker/map.html', {"map": map_html})
 
     return html
+
