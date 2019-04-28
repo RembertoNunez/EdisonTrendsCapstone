@@ -56,3 +56,7 @@ def mapGenerate(request):
 
     return html
 
+def marketsale(request):
+    html = render(request, 'edisontracker/marketsales.html')
+
+    return html
