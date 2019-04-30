@@ -10,11 +10,20 @@ matplotlib.use('PS')
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import scipy as scipy
+import datetime
 
 def home(request):
-    companyList = ["Electronics", "Food Delivery", "Apparel", "Footwear", "Sportswear", "Retail (General)", "Grocery", "Pizza"]
-    companyList.sort()
-    return render(request, 'edisontracker/index.html', {"company_list": companyList})
+    catagories = {"Electronics": ["Amazon", "Best Buy"],
+                  "Food Delivery": ["Grub Hub", "Door Dash", "Instacart"],
+                  "Apparel": ["Ralph Lauren", "Nordstrom", "H&M", "Hot Topic", "Gap"],
+                  "Footwear": ["Adidas", "Nike"],
+                  "Sportswear": ["Nike", "Adidas", "Under Armour"],
+                  "Retail (General)": ["Amazon", "Kmart", "Target", "Walmart", "Costco"],
+                  "Grocery": ["Publix", "Whole Foods Market", "Safeway"],
+                  "Fast Food": ["Pizza Hut", "Domino's Pizza", "Panda Express"],
+                  "Pizza": ["Pizza Hut", "Domino's Pizza", "Papa John's"]}
+    return render(request, 'edisontracker/index.html', {"categories": catagories})
 
 
 # run with command: FLASK_APP=app.py; flask run
@@ -57,6 +66,120 @@ def mapGenerate(request):
     return html
 
 def marketsale(request):
-    html = render(request, 'edisontracker/marketsales.html')
+    dat = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
+
+    catagories = {"Electronics": ["Amazon", "Best Buy"], "Food Delivery": ["Grub Hub", "Door Dash", "Instacart"],
+                  "Apparel": ["Ralph Lauren", "Nordstrom", "H&M", "Hot Topic", "Gap"], "Footwear": ["Adidas", "Nike"],
+                  "Sportswear": ["Nike", "Adidas", "Under Armour"],
+                  "Retail (General)": ["Amazon", "Kmart", "Target", "Walmart", "Costco"],
+                  "Grocery": ["Publix", "Whole Foods Market", "Safeway"],
+                  "Fast Food": ["Pizza Hut", "Domino's Pizza", "Panda Express"],
+                  "Pizza": ["Pizza Hut", "Domino's Pizza", "Papa John's"]}
+
+    merchants = ["Merchant 1", "Merchant 2", "Merchant 3"]
+    xlab = None
+    tick = 5
+    trend = False
+    rval = False
+    # On_load
+    year_week = []
+    for date in np.array(dat["email_day"]):
+        year = date[0:4]
+        month = date[5:7]
+        day = date[8:10]
+        week = datetime.date(int(year), int(month), int(day)).isocalendar()[1]
+        text = str(year) + "-" + "{:02d}".format(week)
+        year_week.append(text)
+    dat["week"] = year_week
+
+    sales = pd.DataFrame()
+    all_weeks = dat["week"].unique()
+    all_weeks.sort()
+    for week in all_weeks:
+        sales = sales.append(dat.loc[dat["week"] == week, "merchant_name"].value_counts(), ignore_index=True)
+
+    compare = sales[merchants]
+    compare.plot(title="Sales Across a Time Range")
+    plt.xticks(np.arange(len(all_weeks), step=5), all_weeks[0::5], rotation=-75)
+    plt.xlabel("Time Range")
+    plt.ylabel("Number of Sales Records")
+    plt.tight_layout()
+    plt.savefig('edisontracker/static/edisontracker/plot/plot1.png')
+    plt.close()
+
+    compare = compare.assign(x=np.array(range(compare.shape[0])))
+    market_share_plot(compare, all_weeks, trend=True, rval=False)
+
+    html = render(request, 'edisontracker/marketsales.html',  {"company_list": catagories})
 
     return html
+
+def market_share_plot(dat, xlab = None, tick=5, trend=False, rval=False):
+    if xlab is not None:
+        if dat.shape[0] is not len(xlab):
+            print("Error: xlab length does not match the data")
+            print(str(dat.shape[0]) + " != " + str(len(xlab)))
+
+    dat = pd.DataFrame(dat)
+    num_companies = dat.shape[1] - 1
+
+    # Creates a list of companies
+    company_names = []
+    for column_name in dat.columns:
+        if column_name is not "x":
+            company_names.append(column_name)
+
+    # Calculates the probabilities
+    probs = pd.DataFrame()
+    comp = 0
+    for company in company_names:
+        start = dat[company][0] / (dat.loc[0, dat.columns != 'x'].sum())
+        prob_row = []
+
+        # Finds the percentage for each value, minus the first value of the company
+        for row in range(len(dat[company])):
+            prob = ((dat[company][row] / (dat.loc[row, dat.columns != 'x'].sum())) - start) * 100
+            if pd.isna(prob) or prob == None:
+                if pd.isna(start):
+                    prob = 0
+                else:
+                    prob = 0 - start
+            prob_row.append(prob)
+
+        # Adds the probabilities to a new column in the dataframe
+        probs = probs.assign(c=pd.Series(prob_row))
+        probs = probs.rename(columns={'c': company_names[comp]})
+        comp += 1
+
+    # Plots the probabilities over time
+    probs.plot()
+    plt.xlabel("Time Range")
+    plt.ylabel("% Change")
+    plt.title("Change in Market Share Over Time")
+    plt.axhline(y=0, color="gray", linewidth=1, linestyle="--")
+
+    # Add the x label text if given
+    if xlab is not None:
+        plt.xticks(np.arange(len(xlab), step=tick), xlab[0::tick], rotation=-75)
+
+    # Add the trend lines
+    plt.gca().set_prop_cycle(None)
+    if trend:
+        r_values = {}
+        xrange = np.arange(0, probs.shape[0], 1)
+        i = 0
+        for p in probs:
+
+            # Calculate and plot the equation of the trend line for each company
+            slope, intercept, r, p, error = scipy.stats.linregress(xrange, probs[p])
+            if rval:
+                r_values[probs.columns[i]] = r
+
+            line = slope * xrange + intercept
+            plt.plot(xrange, line, linestyle="--", linewidth=1)
+            i += 1
+    plt.tight_layout()
+    plt.savefig('edisontracker/static/edisontracker/plot/plot2.png')
+    plt.close()
+    if trend and rval:
+        return r_values

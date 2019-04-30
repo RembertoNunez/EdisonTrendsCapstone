@@ -75,7 +75,7 @@
         <div class="row">
             <div class="col-md-12">
 
-                <form class="form-inline">
+                <op class="form-inline">
                     <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Select a Feature to Plot</label>
                     <select class="custom-select my-1 mr-sm-2 mb-3" id="inlineFormCustomSelectPref">
                         <option>Choose one...</option>
@@ -103,13 +103,15 @@
                         });
                     </script>
                     <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Company Select</label>
-                  <input class="custom-select my-1 mr-sm-2 mb-3" list="companies" name="company">
-                  <datalist id="companies">
-                   {% for company in company_list %}
-                        <option nam="CompanyName" value = "{{ company }}">
+                    <input class="custom-select my-1 mr-sm-2 mb-3" list="companies" name="company">
+                    <datalist id="companies">
+                   {% for category in categories %}
+                           <option name="CompanyName" value = "{{ category }}">
                    {% endfor %}
-
-              </datalist>
+                        </label>
+                        </div>
+                        </option>
+                    </datalist>
                     <div class="custom-control custom-checkbox my-1 mr-sm-2">
                         <input type="checkbox" class="custom-control-input" id="customControlInline">
                         <label class="custom-control-label" for="customControlInline">Remember my preference</label>
