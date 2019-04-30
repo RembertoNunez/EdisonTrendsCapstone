@@ -5,5 +5,6 @@ urlpatterns = [
     path('', views.home, name='tracker-edisontracker'),
     path('map', views.mapGenerate, name='tracker-edisontracker'),
     path('index.html', views.home, name='tracker-edisontracker'),
-    path('marketsales.html', views.marketsale, name='tracker-edisontracker')
+    path('marketsales.html', views.salesHome, name='tracker-edisontracker'),
+    path('getPlot', views.marketsale, name='tracker-edisontracker')
 ]

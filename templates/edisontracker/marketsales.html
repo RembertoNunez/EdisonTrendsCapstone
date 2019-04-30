@@ -50,9 +50,9 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="makertsales.html">
+                <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Market Share</span>
+                    <span>Market Sales</span>
                 </a>
             </li>
         </ul>
@@ -162,13 +162,24 @@
 <script>
 
     $(document).ready( function() {
-        $("#formSubmit").click(function(event){
-            $("#output").html("img src='{% static 'edisontracker/plot/plot1.png' %}'")
-            var x = document.createElement("IMG");
-            x.setAttribute("src", "{% static 'edisontracker/plot/plot1.png' %}");
-            document.getElementById('#output').appendChild(x);
-        }
-    )
+         $("#formSubmit").click(function(event){
+
+          event.preventDefault();
+
+            $.ajax({
+                type: "GET",
+                url: "/getPlot",
+                dataType: "json",
+                data: {},
+                success: function (data) {
+
+                   $("#output").html("<img style='width:900px; height:400px' src =" + data.plot1 + "></iframe>");
+                    $("#output").append("<img style='width:900px; height:400px' src =" + data.plot2 + "></iframe>");
+                }
+            })
+
+        })
+    })
 </script>
 </body>
 </html>

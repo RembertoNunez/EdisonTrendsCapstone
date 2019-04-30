@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.http import HttpResponse
 import os
 import random
 import folium
@@ -27,7 +28,15 @@ def home(request):
 
 
 # run with command: FLASK_APP=app.py; flask run
-
+def salesHome(request):
+    catagories = {"Electronics": ["Amazon", "Best Buy"], "Food Delivery": ["Grub Hub", "Door Dash", "Instacart"],
+                  "Apparel": ["Ralph Lauren", "Nordstrom", "H&M", "Hot Topic", "Gap"], "Footwear": ["Adidas", "Nike"],
+                  "Sportswear": ["Nike", "Adidas", "Under Armour"],
+                  "Retail (General)": ["Amazon", "Kmart", "Target", "Walmart", "Costco"],
+                  "Grocery": ["Publix", "Whole Foods Market", "Safeway"],
+                  "Fast Food": ["Pizza Hut", "Domino's Pizza", "Panda Express"],
+                  "Pizza": ["Pizza Hut", "Domino's Pizza", "Papa John's"]}
+    return render(request, 'edisontracker/marketsales.html', {"company_list": catagories})
 
 def mapGenerate(request):
     search = SearchEngine(simple_zipcode=True)
@@ -68,13 +77,7 @@ def mapGenerate(request):
 def marketsale(request):
     dat = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
 
-    catagories = {"Electronics": ["Amazon", "Best Buy"], "Food Delivery": ["Grub Hub", "Door Dash", "Instacart"],
-                  "Apparel": ["Ralph Lauren", "Nordstrom", "H&M", "Hot Topic", "Gap"], "Footwear": ["Adidas", "Nike"],
-                  "Sportswear": ["Nike", "Adidas", "Under Armour"],
-                  "Retail (General)": ["Amazon", "Kmart", "Target", "Walmart", "Costco"],
-                  "Grocery": ["Publix", "Whole Foods Market", "Safeway"],
-                  "Fast Food": ["Pizza Hut", "Domino's Pizza", "Panda Express"],
-                  "Pizza": ["Pizza Hut", "Domino's Pizza", "Papa John's"]}
+
 
     merchants = ["Merchant 1", "Merchant 2", "Merchant 3"]
     xlab = None
@@ -110,7 +113,7 @@ def marketsale(request):
     compare = compare.assign(x=np.array(range(compare.shape[0])))
     market_share_plot(compare, all_weeks, trend=True, rval=False)
 
-    html = render(request, 'edisontracker/marketsales.html',  {"company_list": catagories})
+    html = HttpResponse('{ "plot1" : "/static/edisontracker/plot/plot1.png", "plot2" : "/static/edisontracker/plot/plot2.png" }')
 
     return html
 
