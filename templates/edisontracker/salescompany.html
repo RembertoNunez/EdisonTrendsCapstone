@@ -1,9 +1,9 @@
-{% load static from staticfiles%}
+{% load static from staticfiles %}
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Home</title>
+    <title>Market Sales</title>
 {#    Icon#}
     <link rel="icon" href="https://trends.edison.tech/favicon.ico" type="image/x-icon" />
     {#    Date script#}
@@ -41,9 +41,9 @@
   <div id="wrapper">
 
     <!-- Sidebar -->
-     <div class="sidebar-sticky">
+    <div class="sidebar-sticky">
         <ul class="sidebar navbar-nav">
-            <li class="nav-item">
+            <li class="nav-item active">
                 <a class="nav-link" href="index.html">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Home</span>
@@ -55,8 +55,8 @@
                     <span>Market Sales</span>
                 </a>
             </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="salescompany.html">
+            <li class="nav-item">
+                <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Sales All Companies</span>
                 </a>
@@ -73,7 +73,7 @@
           <li class="breadcrumb-item">
             <a >Dashboard</a>
           </li>
-          <li class="breadcrumb-item active">Home</li>
+          <li class="breadcrumb-item active">Market Sales</li>
         </ol>
 
         <!-- Page Content -->
@@ -81,19 +81,7 @@
         <div class="row">
             <div class="col-md-12">
 
-                <op class="form-inline">
-                    <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Select a Feature to Plot</label>
-                    <select class="custom-select my-1 mr-sm-2 mb-3" id="inlineFormCustomSelectPref">
-                        <option>Choose one...</option>
-                        <option value="myct">myct</option>
-                        <option value="mmin">mmin</option>
-                        <option value="mmax">mmax</option>
-                        <option value="cach">cach</option>
-                        <option value="chmin">chmin</option>
-                        <option value="chmax">chmax</option>
-                        <option value="prp">prp</option>
-                        <option value="erp">erp</option>
-                    </select>
+                <form class="form-inline">
                     <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Date Range</label>
                     <input class="custom-select my-1 mr-sm-2 mb-3" type="text" id="daterange" name="daterange" value="01/01/2018 - 01/15/2018" />
                     <script>
@@ -109,21 +97,29 @@
                         });
                     </script>
                     <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Company Select</label>
-                    <input class="custom-select my-1 mr-sm-2 mb-3" list="companies" name="company">
-                    <datalist id="companies">
-                   {% for category in categories %}
-                           <option name="CompanyName" value = "{{ category }}">
+                  <input class="custom-select my-1 mr-sm-2 mb-3" list="companies" name="company">
+                  <datalist id="companies">
+                   {% for company in company_list %}
+                        <option nam="CompanyName" value = "{{ company }}">
                    {% endfor %}
-                    </datalist>
-                    <div class="custom-control custom-checkbox my-1 mr-sm-2">
-                        <input type="checkbox" class="custom-control-input" id="customControlInline">
-                        <label class="custom-control-label" for="customControlInline">Remember my preference</label>
+
+                  </datalist>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="Merchant 1" name="Merchant 1">
+                        <label class="form-check-label" for="defaultCheck1">Merchant 1</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="Merchant 2" name="Merchant 2">
+                        <label class="form-check-label" for="defaultCheck2">Merchant 2</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="Merchant 3" name="Merchant 3">
+                        <label class="form-check-label" for="defaultCheck3">Merchant 3</label>
                     </div>
 
                     <input  id="formSubmit" type="submit" class="btn btn-primary my-1" value="Submit">
                 </form>
                 <div id= "output" class="col-md-12 text-center mb-5">
-                    <!--img src="{% static 'edisontracker/images/bargraph.png' %}"-->
 			    </div>
             </div>
         </div>
@@ -172,31 +168,22 @@
 <script>
 
     $(document).ready( function() {
-        $("#formSubmit").click(function(event){
+         $("#formSubmit").click(function(event){
 
           event.preventDefault();
-          console.log($("#inlineFormCustomSelectPref :selected").val());
-          console.log(userPref);
-          $.ajax({
-            type : "GET",
-            url  : "https://jsonplaceholder.typicode.com/photos",
-            dataType : "json",
-            data : {},
-            success : function(data){
-                console.log(data[0]);
-                $("#output").html("<iframe style='width:900px; height:400px' src='/map'></iframe>");
 
-            },
-            complete: function(data,status) { //optional, used for debugging purposes
-              // alert(status);
-            }
+            $.ajax({
+                type: "GET",
+                url: "/getSalePlot",
+                dataType: "json",
+                data: {},
+                success: function (data) {
+                   $("#output").html("<img style='width:460px; height:340px' src =" + data.plotAllSales + "></iframe>");
+                }
+            })
 
-        });//AJAX
-
-        });
-
-    }
-    )
+        })
+    })
 </script>
 </body>
 </html>

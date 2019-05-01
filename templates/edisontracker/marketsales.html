@@ -55,6 +55,12 @@
                     <span>Market Sales</span>
                 </a>
             </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="salescompany.html">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Sales All Companies</span>
+                </a>
+            </li>
         </ul>
     </div>
 
@@ -173,8 +179,8 @@
                 data: {},
                 success: function (data) {
 
-                   $("#output").html("<img style='width:900px; height:400px' src =" + data.plot1 + "></iframe>");
-                    $("#output").append("<img style='width:900px; height:400px' src =" + data.plot2 + "></iframe>");
+                   $("#output").html("<img style='width:460px; height:340px' src =" + data.plotTimeSale + "></iframe>");
+                    $("#output").append("<img style='width:460px; height:340px' src =" + data.plotMarketShare + "></iframe>");
                 }
             })
 

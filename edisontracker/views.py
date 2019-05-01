@@ -15,28 +15,46 @@ import scipy as scipy
 import datetime
 
 def home(request):
-    catagories = {"Electronics": ["Amazon", "Best Buy"],
-                  "Food Delivery": ["Grub Hub", "Door Dash", "Instacart"],
-                  "Apparel": ["Ralph Lauren", "Nordstrom", "H&M", "Hot Topic", "Gap"],
-                  "Footwear": ["Adidas", "Nike"],
-                  "Sportswear": ["Nike", "Adidas", "Under Armour"],
-                  "Retail (General)": ["Amazon", "Kmart", "Target", "Walmart", "Costco"],
-                  "Grocery": ["Publix", "Whole Foods Market", "Safeway"],
-                  "Fast Food": ["Pizza Hut", "Domino's Pizza", "Panda Express"],
-                  "Pizza": ["Pizza Hut", "Domino's Pizza", "Papa John's"]}
+    catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
+                  "Food Delivery": ["Merchant 5", "Merchant 10", "Merchant 4"],
+                  "Apparel": ["Merchant 23", "Merchant 9", "Merchant 16", "Merchant 21", "Merchant 15"],
+                  "Footwear": ["Merchant 22", "Merchant 17"],
+                  "Sportswear": ["Merchant 17", "Merchant 22", "Merchant 20"],
+                  "Retail (General)": ["Merchant 1", "Merchant 12", "Merchant 8", "Merchant 2", "Merchant 13"],
+                  "Grocery": ["Merchant 13", "Merchant 24", "Merchant 14"],
+                  "Fast Food": ["Merchant 7", "Merchant 3", "Merchant 19"],
+                  "Pizza": ["Merchant 7", "Merchant 3", "Merchant 11"]}
+
     return render(request, 'edisontracker/index.html', {"categories": catagories})
 
 
 # run with command: FLASK_APP=app.py; flask run
 def salesHome(request):
-    catagories = {"Electronics": ["Amazon", "Best Buy"], "Food Delivery": ["Grub Hub", "Door Dash", "Instacart"],
-                  "Apparel": ["Ralph Lauren", "Nordstrom", "H&M", "Hot Topic", "Gap"], "Footwear": ["Adidas", "Nike"],
-                  "Sportswear": ["Nike", "Adidas", "Under Armour"],
-                  "Retail (General)": ["Amazon", "Kmart", "Target", "Walmart", "Costco"],
-                  "Grocery": ["Publix", "Whole Foods Market", "Safeway"],
-                  "Fast Food": ["Pizza Hut", "Domino's Pizza", "Panda Express"],
-                  "Pizza": ["Pizza Hut", "Domino's Pizza", "Papa John's"]}
+    catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
+                  "Food Delivery": ["Merchant 5", "Merchant 10", "Merchant 4"],
+                  "Apparel": ["Merchant 23", "Merchant 9", "Merchant 16", "Merchant 21", "Merchant 15"],
+                  "Footwear": ["Merchant 22", "Merchant 17"],
+                  "Sportswear": ["Merchant 17", "Merchant 22", "Merchant 20"],
+                  "Retail (General)": ["Merchant 1", "Merchant 12", "Merchant 8", "Merchant 2", "Merchant 13"],
+                  "Grocery": ["Merchant 13", "Merchant 24", "Merchant 14"],
+                  "Fast Food": ["Merchant 7", "Merchant 3", "Merchant 19"],
+                  "Pizza": ["Merchant 7", "Merchant 3", "Merchant 11"]}
     return render(request, 'edisontracker/marketsales.html', {"company_list": catagories})
+
+def allSaleHome(request):
+    catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
+                  "Food Delivery": ["Merchant 5", "Merchant 10", "Merchant 4"],
+                  "Apparel": ["Merchant 23", "Merchant 9", "Merchant 16", "Merchant 21", "Merchant 15"],
+                  "Footwear": ["Merchant 22", "Merchant 17"],
+                  "Sportswear": ["Merchant 17", "Merchant 22", "Merchant 20"],
+                  "Retail (General)": ["Merchant 1", "Merchant 12", "Merchant 8", "Merchant 2", "Merchant 13"],
+                  "Grocery": ["Merchant 13", "Merchant 24", "Merchant 14"],
+                  "Fast Food": ["Merchant 7", "Merchant 3", "Merchant 19"],
+                  "Pizza": ["Merchant 7", "Merchant 3", "Merchant 11"]}
+
+    html = render(request, 'edisontracker/salescompany.html', {"company_list": catagories})
+
+    return html
 
 def mapGenerate(request):
     search = SearchEngine(simple_zipcode=True)
@@ -107,13 +125,13 @@ def marketsale(request):
     plt.xlabel("Time Range")
     plt.ylabel("Number of Sales Records")
     plt.tight_layout()
-    plt.savefig('edisontracker/static/edisontracker/plot/plot1.png')
+    plt.savefig('edisontracker/static/edisontracker/plot/plotTimeSale.png')
     plt.close()
 
     compare = compare.assign(x=np.array(range(compare.shape[0])))
     market_share_plot(compare, all_weeks, trend=True, rval=False)
 
-    html = HttpResponse('{ "plot1" : "/static/edisontracker/plot/plot1.png", "plot2" : "/static/edisontracker/plot/plot2.png" }')
+    html = HttpResponse('{ "plotTimeSale" : "/static/edisontracker/plot/plotTimeSale.png", "plotMarketShare" : "/static/edisontracker/plot/plotMarketShare.png" }')
 
     return html
 
@@ -182,7 +200,21 @@ def market_share_plot(dat, xlab = None, tick=5, trend=False, rval=False):
             plt.plot(xrange, line, linestyle="--", linewidth=1)
             i += 1
     plt.tight_layout()
-    plt.savefig('edisontracker/static/edisontracker/plot/plot2.png')
+    plt.savefig('edisontracker/static/edisontracker/plot/plotMarketShare.png')
     plt.close()
     if trend and rval:
         return r_values
+
+def allSales(request):
+    dat = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
+    image_path = 'edisontracker/static/edisontracker/plot/plotAllSales.png'
+    plt.figure(1)
+    dat["merchant_name"].value_counts().plot(kind="bar", color="red")
+    plt.title("Sales per Company")
+    plt.show()
+    plt.savefig(image_path, bbox_inches="tight")
+    plt.close()
+
+    html = HttpResponse('{"plotAllSales" : "/static/edisontracker/plot/plotAllSales.png"}')
+
+    return html
