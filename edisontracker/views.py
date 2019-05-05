@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.http import HttpResponse
+from datetime import date, timedelta
 import os
 import random
 import folium
@@ -13,6 +14,12 @@ import seaborn as sns
 import numpy as np
 import scipy as scipy
 import datetime
+from wtforms import StringField
+from wtforms.validators import DataRequired
+import pandas as pd
+import matplotlib.pyplot as plt
+
+dat = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
 
 def home(request):
     catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
@@ -94,8 +101,6 @@ def mapGenerate(request):
 
 def marketsale(request):
     dat = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
-
-
 
     merchants = ["Merchant 1", "Merchant 2", "Merchant 3"]
     xlab = None
@@ -205,8 +210,9 @@ def market_share_plot(dat, xlab = None, tick=5, trend=False, rval=False):
     if trend and rval:
         return r_values
 
+
 def allSales(request):
-    dat = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
+    global dat
     image_path = 'edisontracker/static/edisontracker/plot/plotAllSales.png'
     plt.figure(1)
     dat["merchant_name"].value_counts().plot(kind="bar", color="red")
@@ -216,5 +222,65 @@ def allSales(request):
     plt.close()
 
     html = HttpResponse('{"plotAllSales" : "/static/edisontracker/plot/plotAllSales.png"}')
+
+    return html
+
+def loadBarPlotNumSales(request):
+    global dat
+    year_month = []
+    try:
+        dat["month"]
+    except KeyError:
+        for date in np.array(dat["email_day"]):
+            year_month.append(date[0:7])
+        dat["month"] = year_month
+    # convert to datetime objects
+    dat["email_day"] = pd.to_datetime(dat["email_day"])
+
+   #html = render('initial.html', select=build_options())
+    html = render(request, 'edisontracker/barplotNumSales.html', {"select": build_options()})
+    return html
+
+def build_options(feat = None ):
+    global dat
+    merchants = sorted(list(dat.merchant_name.unique()))
+    options = "<select id = 'merchant' form=\"form\", name=\"feat\">"
+    for merchant in merchants:
+        if merchant == feat:
+            options += "<option value=\"" + merchant + \
+                       "\" selected>" + merchant + "</option>"
+        else:
+            options += "<option value=\"" + merchant + "\">" + merchant + "</option>"
+    options += "<select>"
+    return options
+
+def getBarPlot(request):
+    feat = request.GET.get("feat")
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+    if (request.GET.get("last_year") == "true"):
+        ed = date.today()
+        end_date = ed.strftime("%m-%d-%y")
+        sd = ed - timedelta(days=365)
+        start_date = sd.strftime("%m-%d-%y")
+    # FIXME Last year check box needs to get the current date in mm-dd-yyyy format
+    # set that as the start_date then subtract one from the year, and set that as the end date
+    # then proceed as normal
+    title = "Sales per Month for {feat} from {start_date} to {end_date}"
+
+    # create the plot
+    image_path = 'edisontracker/static/edisontracker/plot/plotMarketShare.png'
+    selected = (dat["merchant_name"] == feat) & (
+            dat["email_day"] >= start_date) & (dat["email_day"] <= end_date)
+    df = dat.loc[selected]
+    plt.figure(1)
+    df["month"].value_counts().sort_index().plot(kind="bar", color="red")
+    plt.grid(color='gray', linestyle='-', linewidth=1)
+    plt.show()
+    plt.title(title)
+    plt.savefig(image_path)
+    plt.close()
+
+    html = HttpResponse('{"plot" : "/static/edisontracker/plot/plotMarketShare.png"}')
 
     return html

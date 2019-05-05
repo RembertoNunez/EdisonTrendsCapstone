@@ -10434,7 +10434,7 @@ body {
 }
 
 .navbar-nav .nav-item.active .nav-link {
-  color: #fff;
+  color: rgba(255, 255, 255,1);
 }
 
 .navbar-nav .nav-item.dropdown .dropdown-toggle::after {
