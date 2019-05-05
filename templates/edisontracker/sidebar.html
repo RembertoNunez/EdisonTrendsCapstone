@@ -1,0 +1,41 @@
+<!-- Sidebar -->
+    <div class="sidebar-sticky">
+        <ul class="sidebar navbar-nav">
+            <li class="nav-item
+            {% if active == "index" %}
+                active
+            {% endif %} ">
+                <a class="nav-link" href="index.html">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="nav-item
+                {% if active == "market" %}
+                active
+            {% endif %} ">
+                <a class="nav-link" href="marketSales.html">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Market Sales</span>
+                </a>
+            </li>
+            <li class="nav-item
+                {% if active == "sales" %}
+                active
+            {% endif %}">
+                <a class="nav-link" href="salesCompany.html">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Sales All Companies</span>
+                </a>
+            </li>
+         <li class="nav-item
+                {% if active == "plot" %}
+                active
+            {% endif %}">
+                <a class="nav-link" href="barPlot.html">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Bar Plot Num Sales</span>
+                </a>
+            </li>
+        </ul>
+    </div>

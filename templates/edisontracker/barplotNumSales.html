@@ -1,0 +1,141 @@
+{% load static from staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Market Sales</title>
+{#    Icon#}
+    <link rel="icon" href="https://trends.edison.tech/favicon.ico" type="image/x-icon" />
+    {#    Date script#}
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+{#    Bootstrap#}
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <!-- Custom styles for this template-->
+  <link href="{% static 'edisontracker/css/styles.css' %}" rel="stylesheet">
+    <script>
+        var userPref= {
+            start:"",
+            end:"",
+
+        }
+    </script>
+</head>
+
+<body id="page-top">
+
+ <!-- Navbar -->
+  <nav class="navbar navbar-expand navbar-light bg-light static-top">
+
+    <a class="navbar-brand mr-1" href="index.html"> <img width="200" heigh="100" src="https://trends.edison.tech/assets/img/logo-edison-trends-blue.png"></a>
+
+    <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
+      <i class="fas fa-bars"></i>
+    </button>
+  </nav>
+
+  <div id="wrapper">
+
+ {% include "edisontracker/sidebar.html" with active="plot"%}
+
+    <div id="content-wrapper">
+
+      <div class="container-fluid">
+
+        <!-- Breadcrumbs-->
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a >Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active">Sales All Companies</li>
+        </ol>
+
+        <!-- Page Content -->
+       <div class="container py-2">
+        <div class="row">
+            <div class="col-md-12">
+
+                 <form id="form">
+                    <p>Select a Merchant to see sales per month</p>
+                    {{ select|safe }}
+                  <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Date Range</label>
+                    <input class="custom-select my-1 mr-sm-2 mb-3" type="text" id="daterange" name="daterange" value="01/01/2018 - 01/15/2018" />
+                    <script>
+                        $(function() {
+                            $('input[name="daterange"]').daterangepicker({
+                                opens: 'left'
+
+                            }, function(start, end, label) {
+                               userPref.start=start;
+                               userPref.end=end;
+                                console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+                            });
+                        });
+                    </script>
+                    Last Year <input id = "lastYear" name="last_year" type="checkbox" value="true">
+                     <input  id="formSubmit" type="submit" class="btn btn-primary my-1" value="Submit">
+                 </form>
+                 <div id= "output" class="col-md-12 text-center mb-5">
+			    </div>
+            </div>
+        </div>
+    </div>
+      </div>
+      <!-- /.container-fluid -->
+
+      <!-- Sticky Footer -->
+      <footer class="sticky-footer">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>Footer message goes here</span>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+    <!-- /.content-wrapper -->
+
+  </div>
+  <!-- /#wrapper -->
+<script>
+
+
+    $(document).ready( function() {
+        $("#formSubmit").click(function (event) {
+            let date = $('input[name="daterange"]').val().split(" - ");
+            let fDate = date[0].replace("/", "-");
+            let tDate = date[1].replace("/", "-");
+            let merchantChoice = $("#merchant").val();
+            let yearBool = $("#lastYear").val();
+
+
+            event.preventDefault();
+
+            console.log($("#form").serializeArray());
+            $.ajax({
+                type: "GET",
+                url: "/getBarPlot",
+                dataType: "json",
+                data: {
+                    "feat": merchantChoice,
+                    "start_date": fDate,
+                    "end_date": tDate,
+                    "last_year": yearBool
+                },
+                success: function (data) {
+                    console.log(data)
+                    {
+                        $("#output").html("<img style='width:460px; height:340px' src =" + data.plot + "></iframe>");
+                    }
+                }
+
+            })
+        })
+    })
+</script>
+</body>
+</html>
