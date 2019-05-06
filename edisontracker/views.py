@@ -46,7 +46,7 @@ def salesHome(request):
                   "Grocery": ["Merchant 13", "Merchant 24", "Merchant 14"],
                   "Fast Food": ["Merchant 7", "Merchant 3", "Merchant 19"],
                   "Pizza": ["Merchant 7", "Merchant 3", "Merchant 11"]}
-    return render(request, 'edisontracker/marketsales.html', {"company_list": catagories})
+    return render(request, 'edisontracker/marketsales.html', {"categories": catagories})
 
 def allSaleHome(request):
     catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
@@ -59,7 +59,7 @@ def allSaleHome(request):
                   "Fast Food": ["Merchant 7", "Merchant 3", "Merchant 19"],
                   "Pizza": ["Merchant 7", "Merchant 3", "Merchant 11"]}
 
-    html = render(request, 'edisontracker/salescompany.html', {"company_list": catagories})
+    html = render(request, 'edisontracker/salescompany.html', {"categories": catagories})
 
     return html
 
@@ -244,13 +244,13 @@ def loadBarPlotNumSales(request):
 def build_options(feat = None ):
     global dat
     merchants = sorted(list(dat.merchant_name.unique()))
-    options = "<select id = 'merchant' form=\"form\", name=\"feat\">"
+    options = "<select id = 'merchant' class='custom-select my-1 mr-sm-2 mb-3' form=\"form\", name=\"feat\">"
     for merchant in merchants:
         if merchant == feat:
-            options += "<option value=\"" + merchant + \
+            options += "<option class='custom-select my-1 mr-sm-2 mb-3' value=\"" + merchant + \
                        "\" selected>" + merchant + "</option>"
         else:
-            options += "<option value=\"" + merchant + "\">" + merchant + "</option>"
+            options += "<option class='custom-select my-1 mr-sm-2 mb-3' value=\"" + merchant + "\">" + merchant + "</option>"
     options += "<select>"
     return options
 

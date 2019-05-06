@@ -56,35 +56,44 @@
 
         <!-- Page Content -->
        <div class="container py-2">
-        <div class="row">
-            <div class="col-md-12">
+           <div class="row">
+               <div class="col-md-12">
+                   <form id="form">
+                       <div class="row">
+                           <div class="col-sm-6">
+                               <label class="my-1 mr-2" for="merchant">Select a Merchant to see sales per month</label>
+                                {{ select|safe }}
+                           </div>
+                           <div class="col-sm-6">
+                               <label class="my-1 mr-2" for="daterange">Date Range</label>
+                               <input class="custom-select my-1 mr-sm-2 mb-3" type="text" id="daterange" name="daterange" value="01/01/2018 - 01/15/2018" />
+                               <script>
+                                   $(function() {
+                                       $('input[name="daterange"]').daterangepicker({
+                                           opens: 'left'
+                                       }, function(start, end, label) {
+                                           userPref.start=start;
+                                           userPref.end=end;
+                                           console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+                                       });
+                                   });
+                               </script>
+                           </div>
+                       </div>
+                       <div class="form-check">
+                           <input id = "lastYear" class="form-check-input" name="last_year" type="checkbox" value="true">
+                           <label class="form-check-label" for="lastYear">Last Year</label>
+                       </div>
+                       <input  id="formSubmit" type="submit" class="btn btn-primary my-1" value="Submit">
+                   </form>
+                   <div id= "output" class="col-md-12 text-center mb-5">
 
-                 <form id="form">
-                    <p>Select a Merchant to see sales per month</p>
-                    {{ select|safe }}
-                  <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Date Range</label>
-                    <input class="custom-select my-1 mr-sm-2 mb-3" type="text" id="daterange" name="daterange" value="01/01/2018 - 01/15/2018" />
-                    <script>
-                        $(function() {
-                            $('input[name="daterange"]').daterangepicker({
-                                opens: 'left'
-
-                            }, function(start, end, label) {
-                               userPref.start=start;
-                               userPref.end=end;
-                                console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
-                            });
-                        });
-                    </script>
-                    Last Year <input id = "lastYear" name="last_year" type="checkbox" value="true">
-                     <input  id="formSubmit" type="submit" class="btn btn-primary my-1" value="Submit">
-                 </form>
-                 <div id= "output" class="col-md-12 text-center mb-5">
-			    </div>
-            </div>
-        </div>
-    </div>
+                   </div>
+               </div>
+           </div>
+       </div>
       </div>
+    </div>
       <!-- /.container-fluid -->
 
      <!-- Sticky Footer -->
