@@ -329,7 +329,7 @@ progress {
   -webkit-appearance: button;
 }
 
-output {
+.output {
   display: inline-block;
 }
 
@@ -10446,6 +10446,19 @@ body {
   font-weight: 900;
   content: '\f105';
   font-family: 'Font Awesome 5 Free';
+}
+
+.loading{
+  display: none;
+  position: absolute;
+  top:75%;
+  bottom: 0;
+  left: 50%;
+  right: 0;
+
+
+
+
 }
 
 .navbar-nav .nav-item.dropdown.show .dropdown-toggle::after {

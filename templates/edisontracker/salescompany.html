@@ -97,8 +97,11 @@
 
                     <input  id="formSubmit" type="submit" class="btn btn-primary my-1" value="Submit">
                 </form>
-                <div id= "output" class="col-md-12 text-center mb-5">
-			    </div>
+                <div class="loading" >
+                       <img src="{% static 'edisontracker/images/loading.gif' %}">
+                   </div>
+                   <div id="output" class="col-md-12 text-center mb-5">
+                   </div>
             </div>
         </div>
     </div>
@@ -128,8 +131,20 @@
                 url: "/getSalePlot",
                 dataType: "json",
                 data: {},
+                 beforeSend: function() {
+                    $(".loading").show();
+                    $("#output").hide();
+                },
                 success: function (data) {
                    $("#output").html("<img style='width:460px; height:340px' src =" + data.plotAllSales + "></iframe>");
+                },
+                 complete: function(status){
+                    console.log(status);
+                    if(status.statusText!="OK"){
+                       $("#output").html("Error: No data for "+merchantChoice+ " for this time frame.");
+                    }
+                    $("#output").show();
+                    $(".loading").hide();
                 }
             })
 

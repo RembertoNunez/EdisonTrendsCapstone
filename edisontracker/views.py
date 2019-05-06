@@ -18,8 +18,14 @@ from wtforms import StringField
 from wtforms.validators import DataRequired
 import pandas as pd
 import matplotlib.pyplot as plt
+to_plot = "Papa John's"
+compare = ["Pizza Hut", "Domino's Pizza"]
+compare.append(to_plot)
+
+search = SearchEngine(simple_zipcode = True)
 
 dat = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
+state_zip = {}
 
 def home(request):
     catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
@@ -48,6 +54,23 @@ def salesHome(request):
                   "Pizza": ["Merchant 7", "Merchant 3", "Merchant 11"]}
     return render(request, 'edisontracker/marketsales.html', {"categories": catagories})
 
+def getMerchantsByType(request):
+    catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
+                  "Food Delivery": ["Merchant 5", "Merchant 10", "Merchant 4"],
+                  "Apparel": ["Merchant 23", "Merchant 9", "Merchant 16", "Merchant 21", "Merchant 15"],
+                  "Footwear": ["Merchant 22", "Merchant 17"],
+                  "Sportswear": ["Merchant 17", "Merchant 22", "Merchant 20"],
+                  "Retail (General)": ["Merchant 1", "Merchant 12", "Merchant 8", "Merchant 2", "Merchant 13"],
+                  "Grocery": ["Merchant 13", "Merchant 24", "Merchant 14"],
+                  "Fast Food": ["Merchant 7", "Merchant 3", "Merchant 19"],
+                  "Pizza": ["Merchant 7", "Merchant 3", "Merchant 11"]}
+
+    merchantType = request.GET.get("category");
+    for item in catagories[merchantType]:
+        print(item)
+
+
+
 def allSaleHome(request):
     catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
                   "Food Delivery": ["Merchant 5", "Merchant 10", "Merchant 4"],
@@ -66,18 +89,77 @@ def allSaleHome(request):
 def mapGenerate(request):
     search = SearchEngine(simple_zipcode=True)
 
-    # app = Flask(__name__, static_url_path='/static')
+    data = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
 
-    zips = [
-        "10468", "91710", "34759", "55410", "20164", "30044", "38663",
-        "72916", "28411", "98116", "67230", "33496", "19064", "78130",
-        "90403", "90290", "46013", "94114", "95361", "91754", "41076",
-        "38002", "38017", "10011", "34759", "42701", "19053", "89521",
-        "85749", "16855", "18037", "98056", "34787", "08520", "75009",
-        "84780", "33897", "52060", "89166", "85302", "91604", "27526",
-        "92253", "19050", "07075", "43017", "11102", "33321", "71111",
-        "19610", "75114", "92054", "53511", "95348", "63304", "60193",
-        "42701", "13642", "77845", "30238", "95020"]
+    map_obj = plot_market_on_map(data, compare, to_plot)
+
+    style_statement = '<style>.leaflet-control{color:#00FF00}</style>'
+    map_obj.get_root().html.add_child(folium.Element(style_statement))
+    map_html = map_obj.get_root().render()
+
+    filename = str(random.randint(1, 9999999999))
+    file = open("static/" + filename + ".html", "w")
+    file.write(map_html)
+    file.close()
+
+    html = render(request, 'edisontracker/map.html', {"map": map_html})
+
+    return html
+
+
+def plot_market_on_map(data, compare, to_plot):
+    import math
+    import datetime
+
+    dat_state = data.loc[:, ['user_zip_code', 'merchant_name', 'email_day']]
+    dat_state = dat_state.loc[dat_state['merchant_name'].isin(compare), :]
+
+    # Add the state column
+    dat_state['state'] = dat_state['user_zip_code'].apply(lambda x: find_state(x))
+
+    year_week = []
+    day_to_week = {}
+    for date in np.array(dat_state["email_day"]):
+        if date in day_to_week.keys():
+            year_week.append(day_to_week[date])
+        else:
+            year = date[0:4]
+            month = date[5:7]
+            day = date[8:10]
+            week = datetime.date(int(year), int(month), int(day)).isocalendar()[1]
+            text = str(year) + "-" + "{:02d}".format(week)
+            year_week.append(text)
+    dat_state["week"] = year_week
+
+    grouped_state = dat_state.groupby('state')
+
+    np.seterr(all="ignore")
+
+    state_change = pd.DataFrame(columns=['State', 'Change'])
+    row_to_add = 0
+
+    for state in grouped_state:
+
+        sales = pd.DataFrame()
+        all_weeks = dat_state["week"].unique()
+        all_weeks.sort()
+        for week in all_weeks:
+            sale_count = state[1].loc[state[1]["week"] == week, "merchant_name"].value_counts()
+            sales = sales.append(sale_count, ignore_index=True)
+
+        compare = sales.fillna(0)
+        compare = compare.assign(x=np.array(range(compare.shape[0])))
+
+        res = market_share_change(compare)
+        if to_plot in list(res.keys()):
+            state_change.loc[row_to_add] = [state[0], res[to_plot]]
+
+        else:
+            state_change.loc[row_to_add] = [state[0], 0]
+
+        row_to_add += 1
+
+    state_edges = os.path.join('states.geojson')
 
     map_obj = folium.Map(
         location=[39.8283, -98.5795],
@@ -85,20 +167,80 @@ def mapGenerate(request):
         tiles='OpenStreetMap'
     )
 
-    for code in zips:
-        zip_info = search.by_zipcode(code)
-        coord = zip_info.lat, zip_info.lng
-        icon = folium.features.CustomIcon('edisontracker/static/edisontracker/images/red_circle.png', icon_size=(10, 10))
-        folium.Marker(coord, icon=icon).add_to(map_obj)
+    minimum = min(state_change["Change"])
+    maximum = max(state_change["Change"])
+    breaks = 5
+    limit = max(abs(math.floor(minimum)), abs(math.ceil(maximum)))
+    scale = list(np.histogram(np.arange(math.floor((-limit) / breaks) * breaks, 0 + 1), bins=breaks)[1])
+    scale.extend(list(np.histogram(np.arange(0, math.ceil((limit) / breaks) * breaks + 1), bins=breaks)[1]))
+    folium.Choropleth(
+        geo_data=state_edges,
+        data=state_change,
+        columns=["State", "Change"],
+        key_on='feature.properties.name',
+        fill_color='RdYlBu',
+        fill_opacity=0.8,
+        line_opacity=0.6,
+        threshold_scale=scale,
+        reset=True
 
-    style_statement = '<style>.leaflet-control{color:#00FF00}</style>'
-    map_obj.get_root().html.add_child(folium.Element(style_statement))
-    map_html = map_obj.get_root().render()
+    ).add_to(map_obj)
 
-    html = render(request, 'edisontracker/map.html', {"map": map_html})
+    return map_obj
 
-    return html
 
+def market_share_change(dat):
+    import sys
+
+    # Creates a list of companies
+    company_names = []
+    for column_name in dat.columns:
+        if column_name is not "x":
+            company_names.append(column_name)
+
+    # Calculates the probabilities
+    probs = pd.DataFrame()
+    comp = 0
+    for company in company_names:
+        denom = dat.loc[0, dat.columns != 'x'].sum()
+        if denom != 0:
+            start = dat[company][0] / denom
+        else:
+            start = 1 / len(company_names)
+        prob_row = []
+
+        # Finds the percentage for each value, minus the first value of the company
+        for row in range(len(dat[company])):
+            denom = dat.loc[row, dat.columns != 'x'].sum()
+            if denom != 0:
+                prob = ((dat[company][row] / denom) - start) * 100
+            else:
+                prob = 0
+            prob_row.append(prob)
+
+        # Adds the probabilities to a new column in the dataframe
+        probs = probs.assign(c=pd.Series(prob_row))
+        probs = probs.rename(columns={'c': company_names[comp]})
+        comp += 1
+
+    max_x = probs.shape[0] - 1
+    xrange = np.arange(0, probs.shape[0], 1)
+
+    changes = {}
+    for company in probs:
+        slope, intercept, r, p, error = scipy.stats.linregress(xrange, probs[company])
+        changes[company] = slope * max_x
+
+    return changes
+def find_state(zip):
+    if zip in state_zip:
+        return state_zip[zip]
+    else:
+        state_abrv = search.by_zipcode(str(zip)).state
+        if state_abrv is not None:
+            state = state_names.get_full[state_abrv]
+            state_zip[zip] = state
+            return state
 def marketsale(request):
     dat = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
 
@@ -258,16 +400,11 @@ def getBarPlot(request):
     feat = request.GET.get("feat")
     start_date = request.GET.get("start_date")
     end_date = request.GET.get("end_date")
-    if (request.GET.get("last_year") == "true"):
-        ed = date.today()
-        end_date = ed.strftime("%m-%d-%y")
-        sd = ed - timedelta(days=365)
-        start_date = sd.strftime("%m-%d-%y")
-    # FIXME Last year check box needs to get the current date in mm-dd-yyyy format
-    # set that as the start_date then subtract one from the year, and set that as the end date
-    # then proceed as normal
-    title = "Sales per Month for {feat} from {start_date} to {end_date}"
 
+    title = "Sales per Month for %s from %s to %s" % (feat, start_date, end_date)
+    # "first string is: %s, second one is: %s" % (str1, "geo.tif")
+    print(start_date)
+    print(end_date)
     # create the plot
     image_path = 'edisontracker/static/edisontracker/plot/plotMarketShare.png'
     selected = (dat["merchant_name"] == feat) & (
@@ -276,7 +413,7 @@ def getBarPlot(request):
     plt.figure(1)
     df["month"].value_counts().sort_index().plot(kind="bar", color="red")
     plt.grid(color='gray', linestyle='-', linewidth=1)
-    plt.show()
+
     plt.title(title)
     plt.savefig(image_path)
     plt.close()
