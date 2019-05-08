@@ -18,9 +18,12 @@ from wtforms import StringField
 from wtforms.validators import DataRequired
 import pandas as pd
 import matplotlib.pyplot as plt
+
 import json
-to_plot = "Papa John's"
-compare = ["Pizza Hut", "Domino's Pizza"]
+
+to_plot = "Merchant 11"
+compare = ["Merchant 7", "Merchant 3"]
+
 compare.append(to_plot)
 
 search = SearchEngine(simple_zipcode = True)
@@ -81,10 +84,7 @@ def mapGenerate(request):
     map_obj.get_root().html.add_child(folium.Element(style_statement))
     map_html = map_obj.get_root().render()
 
-    filename = str(random.randint(1, 9999999999))
-    file = open("static/" + filename + ".html", "w")
-    file.write(map_html)
-    file.close()
+
 
     html = render(request, 'edisontracker/map.html', {"map": map_html})
 
@@ -134,7 +134,10 @@ def plot_market_on_map(data, compare, to_plot):
         compare = sales.fillna(0)
         compare = compare.assign(x=np.array(range(compare.shape[0])))
 
+
         res = market_share_change(compare)
+
+
         if to_plot in list(res.keys()):
             state_change.loc[row_to_add] = [state[0], res[to_plot]]
 
@@ -143,7 +146,7 @@ def plot_market_on_map(data, compare, to_plot):
 
         row_to_add += 1
 
-    state_edges = os.path.join('states.geojson')
+    state_edges = os.path.join('edisontracker/static/edisontracker/csv/states.geojson')
 
     map_obj = folium.Map(
         location=[39.8283, -98.5795],
@@ -218,12 +221,68 @@ def market_share_change(dat):
     return changes
 
 def find_state(zip):
+    state = {
+    'Alabama': 'AL',
+    'Alaska': 'AK',
+    'Arizona': 'AZ',
+    'Arkansas': 'AR',
+    'California': 'CA',
+    'Colorado': 'CO',
+    'Connecticut': 'CT',
+    'Delaware': 'DE',
+    'Florida': 'FL',
+    'Georgia': 'GA',
+    'Hawaii': 'HI',
+    'Idaho': 'ID',
+    'Illinois': 'IL',
+    'Indiana': 'IN',
+    'Iowa': 'IA',
+    'Kansas': 'KS',
+    'Kentucky': 'KY',
+    'Louisiana': 'LA',
+    'Maine': 'ME',
+    'Maryland': 'MD',
+    'Massachusetts': 'MA',
+    'Michigan': 'MI',
+    'Minnesota': 'MN',
+    'Mississippi': 'MS',
+    'Missouri': 'MO',
+    'Montana': 'MT',
+    'Nebraska': 'NE',
+    'Nevada': 'NV',
+    'New Hampshire': 'NH',
+    'New Jersey': 'NJ',
+    'New Mexico': 'NM',
+    'New York': 'NY',
+    'North Carolina': 'NC',
+    'North Dakota': 'ND',
+    'Ohio': 'OH',
+    'Oklahoma': 'OK',
+    'Oregon': 'OR',
+    'Pennsylvania': 'PA',
+    'Puerto Rico': 'PR',
+    'Rhode Island': 'RI',
+    'South Carolina': 'SC',
+    'South Dakota': 'SD',
+    'Tennessee': 'TN',
+    'Texas': 'TX',
+    'Utah': 'UT',
+    'Vermont': 'VT',
+    'Virginia': 'VA',
+    'Washington': 'WA',
+    'Washington DC': 'DC',
+    'West Virginia': 'WV',
+    'Wisconsin': 'WI',
+    'Wyoming': 'WY',
+}
+    get_full = {v: k for k, v in state.items()}
+
     if zip in state_zip:
         return state_zip[zip]
     else:
         state_abrv = search.by_zipcode(str(zip)).state
         if state_abrv is not None:
-            state = state_names.get_full[state_abrv]
+            state = get_full[state_abrv]
             state_zip[zip] = state
             return state
 
