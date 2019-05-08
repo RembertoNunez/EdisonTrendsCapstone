@@ -54,23 +54,6 @@ def salesHome(request):
                   "Pizza": ["Merchant 7", "Merchant 3", "Merchant 11"]}
     return render(request, 'edisontracker/marketsales.html', {"categories": catagories})
 
-def getMerchantsByType(request):
-    catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
-                  "Food Delivery": ["Merchant 5", "Merchant 10", "Merchant 4"],
-                  "Apparel": ["Merchant 23", "Merchant 9", "Merchant 16", "Merchant 21", "Merchant 15"],
-                  "Footwear": ["Merchant 22", "Merchant 17"],
-                  "Sportswear": ["Merchant 17", "Merchant 22", "Merchant 20"],
-                  "Retail (General)": ["Merchant 1", "Merchant 12", "Merchant 8", "Merchant 2", "Merchant 13"],
-                  "Grocery": ["Merchant 13", "Merchant 24", "Merchant 14"],
-                  "Fast Food": ["Merchant 7", "Merchant 3", "Merchant 19"],
-                  "Pizza": ["Merchant 7", "Merchant 3", "Merchant 11"]}
-
-    merchantType = request.GET.get("category");
-    for item in catagories[merchantType]:
-        print(item)
-
-
-
 def allSaleHome(request):
     catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
                   "Food Delivery": ["Merchant 5", "Merchant 10", "Merchant 4"],
@@ -232,6 +215,7 @@ def market_share_change(dat):
         changes[company] = slope * max_x
 
     return changes
+
 def find_state(zip):
     if zip in state_zip:
         return state_zip[zip]
@@ -241,10 +225,34 @@ def find_state(zip):
             state = state_names.get_full[state_abrv]
             state_zip[zip] = state
             return state
+
 def marketsale(request):
     dat = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
 
-    merchants = ["Merchant 1", "Merchant 2", "Merchant 3"]
+    # catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
+    #               "Food Delivery": ["Merchant 5", "Merchant 10", "Merchant 4"],
+    #               "Apparel": ["Merchant 23", "Merchant 9", "Merchant 16", "Merchant 21", "Merchant 15"],
+    #               "Footwear": ["Merchant 22", "Merchant 17"],
+    #               "Sportswear": ["Merchant 17", "Merchant 22", "Merchant 20"],
+    #               "Retail (General)": ["Merchant 1", "Merchant 12", "Merchant 8", "Merchant 2", "Merchant 13"],
+    #               "Grocery": ["Merchant 13", "Merchant 24", "Merchant 14"],
+    #               "Fast Food": ["Merchant 7", "Merchant 3", "Merchant 19"],
+    #               "Pizza": ["Merchant 7", "Merchant 3", "Merchant 11"]}
+    #
+    # merchantType = request.GET.get("category")
+    # start_date = request.GET.get("start_date")
+    # end_date = request.GET.get("end_date")
+    # merchants = []
+    #
+    # for item in catagories[merchantType]:
+    #     merchants.append(item)
+    # print(merchants)
+    # print(start_date)
+    # print(end_date)
+
+    merchantTyoe = request.GET.get("merchantChoice")
+    print(merchantTyoe)
+    merchants = [merchantTyoe]
     xlab = None
     tick = 5
     trend = False
@@ -395,6 +403,31 @@ def build_options(feat = None ):
             options += "<option class='custom-select my-1 mr-sm-2 mb-3' value=\"" + merchant + "\">" + merchant + "</option>"
     options += "<select>"
     return options
+
+def getMerchants(request):
+    catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
+                  "Food Delivery": ["Merchant 5", "Merchant 10", "Merchant 4"],
+                  "Apparel": ["Merchant 23", "Merchant 9", "Merchant 16", "Merchant 21", "Merchant 15"],
+                  "Footwear": ["Merchant 22", "Merchant 17"],
+                  "Sportswear": ["Merchant 17", "Merchant 22", "Merchant 20"],
+                  "Retail (General)": ["Merchant 1", "Merchant 12", "Merchant 8", "Merchant 2", "Merchant 13"],
+                  "Grocery": ["Merchant 13", "Merchant 24", "Merchant 14"],
+                  "Fast Food": ["Merchant 7", "Merchant 3", "Merchant 19"],
+                  "Pizza": ["Merchant 7", "Merchant 3", "Merchant 11"]}
+
+    merchantType = request.GET.get("category")
+    merchants = []
+    for item in catagories[merchantType]:
+        merchants.append(item)
+
+    display = ""
+
+    for merchant in merchants:
+        display += "<div class ='form-check form-check-inline'>"
+        display += "<input class ='form-check-input' type='checkbox' value=\"" + merchant + "\" id='merchants'>"
+        display += "<label class ='form-check-label' for ='merchants' >" + merchant + "</label> </div>"
+    html = HttpResponse(display)
+    return html
 
 def getBarPlot(request):
     feat = request.GET.get("feat")

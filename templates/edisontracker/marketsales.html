@@ -62,33 +62,40 @@
                        <div class="row">
                            <div class="col-sm-6">
                                <label class="my-1 mr-2" for="daterange">Select Category</label>
-                               <input class="custom-select my-1 mr-sm-2 mb-3" list="companies" name="company">
+                               <input class="custom-select my-1 mr-sm-2 mb-3" id="category" list="companies" name="company">
                                <datalist id="companies">
                                    {% for category in categories %}
                                        <option name="CompanyName" value = "{{ category }}">{{ category }}</option>
                                    {% endfor %}
                                </datalist>
                            </div>
-                           <div class="col-sm-6">
-                               <label class="my-1 mr-2" for="daterange">Date Range</label>
-                               <input class="custom-select my-1 mr-sm-2 mb-3" type="text" id="daterange" name="daterange" value="01/01/2018 - 01/15/2018" />
+                           <div id="outputMerch" class="col-sm-6">
+                           </div>
                                <script>
                                    $(function() {
-                                       $('input[name="daterange"]').daterangepicker({
-                                           opens: 'left'
-                                       }, function(start, end, label) {
-                                           userPref.start=start;
-                                           userPref.end=end;
-                                           console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
-                                       });
+                                       var start = moment().subtract(29, 'days');
+                                       var end = moment();
+
+                                       function cb(start, end) {
+                                           $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                                       }
+
+                                       $('#reportrange').daterangepicker({
+                                           startDate: start,
+                                           endDate: end,
+                                           ranges: {
+                                               'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                                               'Last year': [moment().subtract(2, 'year').startOf('year'), moment().subtract(1,'year').endOf('year')],
+                                               'Last 2 years': [moment().subtract(3, 'year').startOf('year'), moment().subtract(1,'year').endOf('year')],
+                                               'Last 5 years': [moment().subtract(6, 'year').startOf('year'), moment().subtract(1,'year').endOf('year')],
+                                           }
+                                       }, cb);
+
+                                       cb(start, end);
+
                                    });
                                </script>
                            </div>
-                       </div>
-                       <div class="form-check">
-                           <input id = "lastYear" class="form-check-input" name="last_year" type="checkbox" value="true">
-                           <label class="form-check-label" for="lastYear">Last Year</label>
-                       </div>
                        <input  id="formSubmit" type="submit" class="btn btn-primary my-1" value="Submit">
                    </form>
                     <div class="loading" >
@@ -98,8 +105,8 @@
                    </div>
             </div>
         </div>
-    </div>
       </div>
+    </div>
       <!-- /.container-fluid -->
 
       <!-- Sticky Footer -->
@@ -114,23 +121,54 @@
 <script>
 
     $(document).ready( function() {
-         $("#formSubmit").click(function(event){
+        let i = 0;
 
-          event.preventDefault();
+        $("#category").change(
+            function () {
+                let categoryChoice = $("#category").val();
+                $.ajax({
+                type: "GET",
+                url: "/getMerchants",
+                dataType: "text",
+                data: {
+                    "category": categoryChoice
+                },
+                success: function (data) {
+
+                    $("#outputMerch").html("<div class='from-group'><label class='my-1 mr-2' for='merchants'>Select Merchants</label></div>" + data);
+
+                }
+            })
+            }
+        );
+
+         $("#formSubmit").click(function(event){
+            let date = $('#reportrange span').text().split(" - ");
+            let fDate = moment(date[0],'MMMM DD, YYYY').format("'MM/DD/YYYY'");
+            let tDate = moment(date[1],'MMMM DD, YYYY').format("'MM/DD/YYYY'");
+            let categoryChoice = $("#category").val();
+            let merchantChoice = $("#merchants").val();
+            i++;
+            event.preventDefault();
 
             $.ajax({
                 type: "GET",
                 url: "/getPlot",
                 dataType: "json",
-                data: {},
+                data: {
+                    "category": categoryChoice,
+                    "merchantChoice": merchantChoice,
+                    "start_date": fDate,
+                    "end_date": tDate,
+                },
                  beforeSend: function() {
                     $(".loading").show();
                     $("#output").hide();
                 },
                 success: function (data) {
 
-                   $("#output").html("<img style='width:460px; height:340px' src =" + data.plotTimeSale + "></iframe>");
-                    $("#output").append("<img style='width:460px; height:340px' src =" + data.plotMarketShare + "></iframe>");
+                    $("#output").html("<img style='width:460px; height:340px' src =" + data.plotTimeSale + "?" + i + "></iframe>");
+                    $("#output").append("<img style='width:460px; height:340px' src =" + data.plotMarketShare + "?" + i + "></iframe>");
                 },
                  complete: function(status){
                     console.log(status);

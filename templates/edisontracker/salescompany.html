@@ -60,39 +60,8 @@
             <div class="col-md-12">
 
                 <form class="form-inline">
-                    <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Date Range</label>
-                    <input class="custom-select my-1 mr-sm-2 mb-3" type="text" id="daterange" name="daterange" value="01/01/2018 - 01/15/2018" />
-                    <script>
-                        $(function() {
-                            $('input[name="daterange"]').daterangepicker({
-                                opens: 'left'
-
-                            }, function(start, end, label) {
-                               userPref.start=start;
-                               userPref.end=end;
-                                console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
-                            });
-                        });
-                    </script>
-                    <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Company Select</label>
-                  <input class="custom-select my-1 mr-sm-2 mb-3" list="companies" name="company">
-                  <datalist id="companies">
-                   {% for company in company_list %}
-                        <option nam="CompanyName" value = "{{ company }}">
-                   {% endfor %}
-
-                  </datalist>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="Merchant 1" name="Merchant 1">
-                        <label class="form-check-label" for="defaultCheck1">Merchant 1</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="Merchant 2" name="Merchant 2">
-                        <label class="form-check-label" for="defaultCheck2">Merchant 2</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="Merchant 3" name="Merchant 3">
-                        <label class="form-check-label" for="defaultCheck3">Merchant 3</label>
+                    <div class="form-group">
+                        <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Get the Sales from All Companies</label>
                     </div>
 
                     <input  id="formSubmit" type="submit" class="btn btn-primary my-1" value="Submit">

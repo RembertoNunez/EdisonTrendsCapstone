@@ -11,5 +11,5 @@ urlpatterns = [
     path('getSalePlot', views.allSales, name='tracker-edisontracker'),
     path('barPlot.html', views.loadBarPlotNumSales, name='tracker-edisontracker'),
     path('getBarPlot', views.getBarPlot, name='tracker-edisontracker'),
-
+    path('getMerchants', views.getMerchants, name='tracker-edisontracker'),
 ]
