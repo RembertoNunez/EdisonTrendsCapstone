@@ -18,6 +18,7 @@ from wtforms import StringField
 from wtforms.validators import DataRequired
 import pandas as pd
 import matplotlib.pyplot as plt
+import json
 to_plot = "Papa John's"
 compare = ["Pizza Hut", "Domino's Pizza"]
 compare.append(to_plot)
@@ -250,9 +251,12 @@ def marketsale(request):
     # print(start_date)
     # print(end_date)
 
-    merchantTyoe = request.GET.get("merchantChoice")
-    print(merchantTyoe)
-    merchants = [merchantTyoe]
+    # merchantType = []
+    # merchantType.append(request.GET.get("merchantChoice"))
+    merchantType = request.GET.get("merchantChoice")
+    merchants = json.loads(merchantType)
+    print(merchants)
+
     xlab = None
     tick = 5
     trend = False
@@ -424,7 +428,7 @@ def getMerchants(request):
 
     for merchant in merchants:
         display += "<div class ='form-check form-check-inline'>"
-        display += "<input class ='form-check-input' type='checkbox' value=\"" + merchant + "\" id='merchants'>"
+        display += "<input class ='form-check-input' type='checkbox' name='merchants' value=\"" + merchant + "\" id='merchants'>"
         display += "<label class ='form-check-label' for ='merchants' >" + merchant + "</label> </div>"
     html = HttpResponse(display)
     return html

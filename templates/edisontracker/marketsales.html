@@ -149,7 +149,15 @@
             let categoryChoice = $("#category").val();
             let merchantChoice = $("#merchants").val();
             i++;
+
+            var merch = [];
+            $.each($("input[name='merchants']:checked"), function(){
+                merch.push($(this).val());
+            });
+            alert("Merchants Selected: " + merch.join(", "));
             event.preventDefault();
+
+            merch = JSON.stringify(merch)
 
             $.ajax({
                 type: "GET",
@@ -157,7 +165,7 @@
                 dataType: "json",
                 data: {
                     "category": categoryChoice,
-                    "merchantChoice": merchantChoice,
+                    "merchantChoice": merch,
                     "start_date": fDate,
                     "end_date": tDate,
                 },
@@ -173,7 +181,7 @@
                  complete: function(status){
                     console.log(status);
                     if(status.statusText!="OK"){
-                       $("#output").html("Error: No data for "+merchantChoice+ " for this time frame.");
+                       $("#output").html("Error: Not able to get data.");
                     }
                     $("#output").show();
                     $(".loading").hide();
