@@ -154,7 +154,7 @@
             $.each($("input[name='merchants']:checked"), function(){
                 merch.push($(this).val());
             });
-            alert("Merchants Selected: " + merch.join(", "));
+            {#alert("Merchants Selected: " + merch.join(", "));#}
             event.preventDefault();
 
             merch = JSON.stringify(merch)

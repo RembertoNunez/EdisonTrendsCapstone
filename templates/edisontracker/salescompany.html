@@ -59,11 +59,10 @@
         <div class="row">
             <div class="col-md-12">
 
-                <form class="form-inline">
+                <form class="form-group">
                     <div class="form-group">
                         <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Get the Sales from All Companies</label>
                     </div>
-
                     <input  id="formSubmit" type="submit" class="btn btn-primary my-1" value="Submit">
                 </form>
                 <div class="loading" >
@@ -105,7 +104,7 @@
                     $("#output").hide();
                 },
                 success: function (data) {
-                   $("#output").html("<img style='width:460px; height:340px' src =" + data.plotAllSales + "></iframe>");
+                   $("#output").html("<img style='width:600px; height:350px' src =" + data.plotAllSales + "></iframe>");
                 },
                  complete: function(status){
                     console.log(status);
