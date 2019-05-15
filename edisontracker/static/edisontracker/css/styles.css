@@ -234,7 +234,6 @@ button:focus {
 
 input,
 button,
-select,
 optgroup,
 textarea {
   margin: 0;
@@ -248,8 +247,7 @@ input {
   overflow: visible;
 }
 
-button,
-select {
+button{
   text-transform: none;
 }
 
@@ -2061,10 +2059,6 @@ pre code {
   opacity: 1;
 }
 
-select.form-control:focus::-ms-value {
-  color: #495057;
-  background-color: #fff;
-}
 
 .form-control-file,
 .form-control-range {
@@ -2128,9 +2122,7 @@ select.form-control:focus::-ms-value {
   border-radius: 0.3rem;
 }
 
-select.form-control[size], select.form-control[multiple] {
-  height: auto;
-}
+
 
 textarea.form-control {
   height: auto;

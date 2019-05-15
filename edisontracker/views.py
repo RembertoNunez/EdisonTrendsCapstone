@@ -18,13 +18,11 @@ from wtforms import StringField
 from wtforms.validators import DataRequired
 import pandas as pd
 import matplotlib.pyplot as plt
+import math
 
 import json
 
-to_plot = "Merchant 11"
-compare = ["Merchant 7", "Merchant 3"]
 
-compare.append(to_plot)
 
 search = SearchEngine(simple_zipcode = True)
 
@@ -32,18 +30,33 @@ dat = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
 state_zip = {}
 
 def home(request):
-    catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
-                  "Food Delivery": ["Merchant 5", "Merchant 10", "Merchant 4"],
-                  "Apparel": ["Merchant 23", "Merchant 9", "Merchant 16", "Merchant 21", "Merchant 15"],
-                  "Footwear": ["Merchant 22", "Merchant 17"],
-                  "Sportswear": ["Merchant 17", "Merchant 22", "Merchant 20"],
-                  "Retail (General)": ["Merchant 1", "Merchant 12", "Merchant 8", "Merchant 2", "Merchant 13"],
-                  "Grocery": ["Merchant 13", "Merchant 24", "Merchant 14"],
-                  "Fast Food": ["Merchant 7", "Merchant 3", "Merchant 19"],
-                  "Pizza": ["Merchant 7", "Merchant 3", "Merchant 11"]}
+    categories = {"Electronics": ["Amazon", "Best Buy"], "Food Delivery": ["Grub Hub", "Door Dash", "Instacart"],
+                  "Apparel": ["Ralph Lauren", "Nordstrom", "H&M", "Hot Topic", "Gap"], "Footwear": ["Adidas", "Nike"],
+                  "Sportswear": ["Nike", "Adidas", "Under Armour"],
+                  "Retail (General)": ["Amazon", "Kmart", "Target", "Walmart", "Costco"],
+                  "Grocery": ["Publix", "Whole Foods Market", "Safeway"],
+                  "Fast Food": ["Pizza Hut", "Domino's Pizza", "Panda Express"],
+                  "Pizza": ["Pizza Hut", "Domino's Pizza", "Papa John's"]}
 
-    return render(request, 'edisontracker/index.html', {"categories": catagories})
+    return render(request, 'edisontracker/index.html', {"categories": categories})
 
+def getOptions(request):
+    choice = request.GET.get("choice")
+    merchants = ["Amazon", "Best Buy", "Grub Hub", "Door Dash", "Instacart",
+                  "Ralph Lauren", "Nordstrom", "H&M", "Hot Topic", "Gap","Adidas", "Nike",
+                  "Nike", "Adidas", "Under Armour",
+                  "Amazon", "Kmart", "Target", "Walmart", "Costco",
+                  "Publix", "Whole Foods Market", "Safeway",
+                  "Pizza Hut", "Domino's Pizza", "Panda Express",
+                  "Pizza Hut", "Domino's Pizza", "Papa John's"]
+    merchants.remove(choice)
+    display = ""
+    for merchant in merchants:
+        display += "<div class ='form-check form-check-inline' style= 'width: 500px'>"
+        display += "<input class ='form-check-input' type='checkbox' name='merchants' value=\"" + merchant + "\" id='merchants'>"
+        display += "<label class ='form-check-label' for ='merchants' >" + merchant + "</label> </div>"
+    html = HttpResponse(display)
+    return html
 
 # run with command: FLASK_APP=app.py; flask run
 def salesHome(request):
@@ -78,22 +91,33 @@ def mapGenerate(request):
 
     data = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
 
+    to_plot = request.GET.get("to_plot")
+    compare = request.GET.getlist("compare[]")
+
+    compare.append(to_plot)
+
     map_obj = plot_market_on_map(data, compare, to_plot)
 
     style_statement = '<style>.leaflet-control{color:#00FF00}</style>'
     map_obj.get_root().html.add_child(folium.Element(style_statement))
     map_html = map_obj.get_root().render()
+    filename = "map"
+    file = open("edisontracker/static/edisontracker/plot/" + filename + ".html", "w")
+    file.write(map_html)
+    file.close()
 
-
-
-    html = render(request, 'edisontracker/map.html', {"map": map_html})
+    html = HttpResponse(
+        "")
 
     return html
 
+def getMap(request):
+    html = render(request, 'edisontracker/map.html')
+
+    return html
 
 def plot_market_on_map(data, compare, to_plot):
-    import math
-    import datetime
+
 
     dat_state = data.loc[:, ['user_zip_code', 'merchant_name', 'email_day']]
     dat_state = dat_state.loc[dat_state['merchant_name'].isin(compare), :]
@@ -468,15 +492,13 @@ def build_options(feat = None ):
     return options
 
 def getMerchants(request):
-    catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
-                  "Food Delivery": ["Merchant 5", "Merchant 10", "Merchant 4"],
-                  "Apparel": ["Merchant 23", "Merchant 9", "Merchant 16", "Merchant 21", "Merchant 15"],
-                  "Footwear": ["Merchant 22", "Merchant 17"],
-                  "Sportswear": ["Merchant 17", "Merchant 22", "Merchant 20"],
-                  "Retail (General)": ["Merchant 1", "Merchant 12", "Merchant 8", "Merchant 2", "Merchant 13"],
-                  "Grocery": ["Merchant 13", "Merchant 24", "Merchant 14"],
-                  "Fast Food": ["Merchant 7", "Merchant 3", "Merchant 19"],
-                  "Pizza": ["Merchant 7", "Merchant 3", "Merchant 11"]}
+    catagories = {"Electronics": ["Amazon", "Best Buy"], "Food Delivery": ["Grub Hub", "Door Dash", "Instacart"],
+                  "Apparel": ["Ralph Lauren", "Nordstrom", "H&M", "Hot Topic", "Gap"], "Footwear": ["Adidas", "Nike"],
+                  "Sportswear": ["Nike", "Adidas", "Under Armour"],
+                  "Retail (General)": ["Amazon", "Kmart", "Target", "Walmart", "Costco"],
+                  "Grocery": ["Publix", "Whole Foods Market", "Safeway"],
+                  "Fast Food": ["Pizza Hut", "Domino's Pizza", "Panda Express"],
+                  "Pizza": ["Pizza Hut", "Domino's Pizza", "Papa John's"]}
 
     merchantType = request.GET.get("category")
     merchants = []

@@ -4,19 +4,24 @@
 <html lang="en">
 <head>
     <title>Home</title>
-{#    Icon#}
+    {#    Icon#}
     <link rel="icon" href="https://trends.edison.tech/favicon.ico" type="image/x-icon" />
     {#    Date script#}
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-{#    Bootstrap#}
+    {#    Bootstrap#}
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.full.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.js"></script>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <!-- Custom styles for this template-->
   <link href="{% static 'edisontracker/css/styles.css' %}" rel="stylesheet">
+    <link href="{% static 'edisontracker/css/select2-bootstrap4.css' %}" rel="stylesheet">
     <script>
         var userPref= {
             start:"",
@@ -52,61 +57,90 @@
           <li class="breadcrumb-item">
             <a >Dashboard</a>
           </li>
-          <li class="breadcrumb-item active">Home</li>
+          <li class="breadcrumb-item active">Market Sales</li>
         </ol>
 
         <!-- Page Content -->
        <div class="container py-2">
-        <div class="row">
-            <div class="col-md-12">
+           <div class="row">
+               <div class="col-md-12">
+                   <form id="form">
+                       <div class="row">
+                           <div class="col-sm-6">
 
-                <op class="form-inline">
-                    <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Select a Feature to Plot</label>
-                    <select class="custom-select my-1 mr-sm-2 mb-3" id="inlineFormCustomSelectPref">
-                        <option>Choose one...</option>
-                        <option value="myct">myct</option>
-                        <option value="mmin">mmin</option>
-                        <option value="mmax">mmax</option>
-                        <option value="cach">cach</option>
-                        <option value="chmin">chmin</option>
-                        <option value="chmax">chmax</option>
-                        <option value="prp">prp</option>
-                        <option value="erp">erp</option>
-                    </select>
-                    <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Date Range</label>
-                    <input class="custom-select my-1 mr-sm-2 mb-3" type="text" id="daterange" name="daterange" value="01/01/2018 - 01/15/2018" />
-                    <script>
-                        $(function() {
-                            $('input[name="daterange"]').daterangepicker({
-                                opens: 'left'
+{#                                       <option name="CompanyName" value = "{{ category }}">{{ category }}</option>#}
 
-                            }, function(start, end, label) {
-                               userPref.start=start;
-                               userPref.end=end;
-                                console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
-                            });
-                        });
-                    </script>
-                    <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Company Select</label>
-                    <input class="custom-select my-1 mr-sm-2 mb-3" list="companies" name="company">
-                    <datalist id="companies">
-                   {% for category in categories %}
-                           <option name="CompanyName" value = "{{ category }}">
-                   {% endfor %}
-                    </datalist>
-                    <div class="custom-control custom-checkbox my-1 mr-sm-2">
-                        <input type="checkbox" class="custom-control-input" id="customControlInline">
-                        <label class="custom-control-label" for="customControlInline">Remember my preference</label>
-                    </div>
+                               <label class="my-1 mr-2" for="company">Select Company</label>
+                               <select class="custom-select my-1 mr-sm-2 mb-3" id="companies" list="companies" name="company">
 
-                    <input  id="formSubmit" type="submit" class="btn btn-primary my-1" value="Submit">
-                </op>
-                <div id= "output" class="col-md-12 text-center mb-5">
-                    <!--img src="{% static 'edisontracker/images/bargraph.png' %}"-->
-			    </div>
+                                   {% for key, value in categories.items %}
+                                       <optgroup label="{{ key }}">
+
+                                   {% for key2 in value %}
+                                        <option name="CompanyName" value = "{{ key2 }}">{{ key2 }}</option>
+                                    {% endfor %}
+                                {% endfor %}
+                               </select>
+                           </div>
+
+                        <div class="col-sm-6">
+
+{#                                       <option name="CompanyName" value = "{{ category }}">{{ category }}</option>#}
+
+                                 <label class="my-1 mr-2" for="company">Select Companies to Compare Against</label>
+                               <select class="custom-select my-1 mr-sm-2 mb-3" multiple id="compare" list="companies" name="compare">
+                                   {% for key, value in categories.items %}
+                                       <optgroup label="{{ key }}">
+
+                                   {% for key2 in value %}
+                                        <option name="CompanyName" value = "{{ key2 }}">{{ key2 }}</option>
+                                    {% endfor %}
+                                {% endfor %}
+                               </select>
+                           </div>
+                           <div id="outputMerch" class="col-sm-6">
+                           </div>
+                               <script>
+
+                                   $(function() {
+                                       var start = moment().subtract(29, 'days');
+                                       var end = moment();
+
+                                       function cb(start, end) {
+                                           $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                                       }
+
+                                       $('#reportrange').daterangepicker({
+                                           startDate: start,
+                                           endDate: end,
+                                           ranges: {
+                                               'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                                               'Last year': [moment().subtract(2, 'year').startOf('year'), moment().subtract(1,'year').endOf('year')],
+                                               'Last 2 years': [moment().subtract(3, 'year').startOf('year'), moment().subtract(1,'year').endOf('year')],
+                                               'Last 5 years': [moment().subtract(6, 'year').startOf('year'), moment().subtract(1,'year').endOf('year')],
+                                           }
+                                       }, cb);
+
+                                       cb(start, end);
+
+                                   });
+                               </script>
+                           </div>
+                       <input  id="formSubmit" type="submit" class="btn btn-primary my-1" value="Submit">
+                   </form>
+
+                   <div id="output" class="col-md-12 text-center mb-5">
+
+                   </div>
+               <br>
+               <br>
+                <div class="loading" >
+                       <img src="{% static 'edisontracker/images/loading.gif' %}">
+                   </div>
             </div>
         </div>
-    </div>
+      </div>
+
       </div>
       <!-- /.container-fluid -->
 
@@ -124,23 +158,42 @@
 <script>
 
     $(document).ready( function() {
+        $('#companies').select2({
+
+            placeholder: "Select an option"
+        });
+        $('#compare').select2({
+
+            placeholder: "Multiple options are allowed",
+            closeOnSelect: false
+        });
+
         $("#formSubmit").click(function(event){
 
           event.preventDefault();
-          console.log($("#inlineFormCustomSelectPref :selected").val());
-          console.log(userPref);
+            console.log($('#compare').val())
           $.ajax({
             type : "GET",
-            url  : "https://jsonplaceholder.typicode.com/photos",
-            dataType : "json",
-            data : {},
-            success : function(data){
-                console.log(data[0]);
-                $("#output").html("<iframe style='width:900px; height:400px' src='/map'></iframe>");
-
+            url  : "/map",
+            dataType: "html",
+            data : {
+                "to_plot": $('#companies').val(),
+               "compare[]": $('#compare').val()
             },
-            complete: function(data,status) { //optional, used for debugging purposes
-              // alert(status);
+            beforeSend: function() {
+                    $(".loading").show();
+                    $("#output").hide();
+                },
+            success : function(data){
+                $("#output").html( '<iframe name= "MyFrame" id ="map" style="width:1000px; height:450px" src ="{% static 'edisontracker/plot/map.html' %}" ></iframe>');
+                           },
+            complete: function(data,status) {
+              if(status!="success"){
+                       $("#output").html("Error: No data for this time frame.");
+                    }
+              console.log(status);
+                    $("#output").show();
+                    $(".loading").hide();
             }
 
         });//AJAX
