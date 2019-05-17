@@ -60,16 +60,14 @@ def getOptions(request):
 
 # run with command: FLASK_APP=app.py; flask run
 def salesHome(request):
-    catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
-                  "Food Delivery": ["Merchant 5", "Merchant 10", "Merchant 4"],
-                  "Apparel": ["Merchant 23", "Merchant 9", "Merchant 16", "Merchant 21", "Merchant 15"],
-                  "Footwear": ["Merchant 22", "Merchant 17"],
-                  "Sportswear": ["Merchant 17", "Merchant 22", "Merchant 20"],
-                  "Retail (General)": ["Merchant 1", "Merchant 12", "Merchant 8", "Merchant 2", "Merchant 13"],
-                  "Grocery": ["Merchant 13", "Merchant 24", "Merchant 14"],
-                  "Fast Food": ["Merchant 7", "Merchant 3", "Merchant 19"],
-                  "Pizza": ["Merchant 7", "Merchant 3", "Merchant 11"]}
-    return render(request, 'edisontracker/marketsales.html', {"categories": catagories})
+    categories = {"Electronics": ["Amazon", "Best Buy"], "Food Delivery": ["Grub Hub", "Door Dash", "Instacart"],
+                  "Apparel": ["Ralph Lauren", "Nordstrom", "H&M", "Hot Topic", "Gap"], "Footwear": ["Adidas", "Nike"],
+                  "Sportswear": ["Nike", "Adidas", "Under Armour"],
+                  "Retail (General)": ["Amazon", "Kmart", "Target", "Walmart", "Costco"],
+                  "Grocery": ["Publix", "Whole Foods Market", "Safeway"],
+                  "Fast Food": ["Pizza Hut", "Domino's Pizza", "Panda Express"],
+                  "Pizza": ["Pizza Hut", "Domino's Pizza", "Papa John's"]}
+    return render(request, 'edisontracker/marketsales.html', {"categories": categories})
 
 def allSaleHome(request):
     catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
@@ -505,12 +503,12 @@ def getMerchants(request):
     for item in catagories[merchantType]:
         merchants.append(item)
 
-    display = ""
+    display = "<select id = 'choice' class='custom-select my-1 mr-sm-2 mb-3' multiple>"
 
     for merchant in merchants:
-        display += "<div class ='form-check form-check-inline'>"
-        display += "<input class ='form-check-input' type='checkbox' name='merchants' value=\"" + merchant + "\" id='merchants'>"
-        display += "<label class ='form-check-label' for ='merchants' >" + merchant + "</label> </div>"
+        display += "<option class ='form-check-input' type='checkbox' name='merchants' value='" + merchant + "'>"+merchant+"</option>"
+    display += "</select>"
+
     html = HttpResponse(display)
     return html
 

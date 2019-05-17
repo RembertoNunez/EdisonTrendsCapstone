@@ -13,6 +13,8 @@
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.full.js"></script>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <!-- Custom styles for this template-->
@@ -61,13 +63,16 @@
                    <form id="form">
                        <div class="row">
                            <div class="col-sm-6">
-                               <label class="my-1 mr-2" for="daterange">Select Category</label>
-                               <input class="custom-select my-1 mr-sm-2 mb-3" id="category" list="companies" name="company">
-                               <datalist id="companies">
-                                   {% for category in categories %}
-                                       <option name="CompanyName" value = "{{ category }}">{{ category }}</option>
-                                   {% endfor %}
-                               </datalist>
+                               <label class="my-1 mr-2" for="company">Select Company</label>
+                               <select class="custom-select my-1 mr-sm-2 mb-3" id="category" list="companies" name="company">
+                                   <option name="CompanyName" value = none">Select a Category</option>
+
+                                   {% for key, value in categories.items %}
+
+                                        <option name="CompanyName" value = "{{ key }}">{{ key }}</option>
+
+                                {% endfor %}
+                               </select>
                            </div>
                            <div id="outputMerch" class="col-sm-6">
                            </div>
@@ -121,6 +126,10 @@
 <script>
 
     $(document).ready( function() {
+        $('#category').select2({
+
+            placeholder: "Select an option"
+        });
         let i = 0;
 
         $("#category").change(
@@ -134,9 +143,13 @@
                     "category": categoryChoice
                 },
                 success: function (data) {
-
+                console.log(data)
                     $("#outputMerch").html("<div class='from-group'><label class='my-1 mr-2' for='merchants'>Select Merchants</label></div>" + data);
+$('#choice').select2({
 
+            placeholder: "Select an option",
+             closeOnSelect: false
+        });
                 }
             })
             }
@@ -149,12 +162,9 @@
             let categoryChoice = $("#category").val();
             let merchantChoice = $("#merchants").val();
             i++;
+            console.log()
+            var merch = $("#choice").val()
 
-            var merch = [];
-            $.each($("input[name='merchants']:checked"), function(){
-                merch.push($(this).val());
-            });
-            {#alert("Merchants Selected: " + merch.join(", "));#}
             event.preventDefault();
 
             merch = JSON.stringify(merch)
