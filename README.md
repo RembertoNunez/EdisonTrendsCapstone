@@ -18,7 +18,10 @@ We created a web application that works with existing and future datasets to cre
 - Sales: A variety of plots depicting the number of sales across time ranges for different companies.
 
 ## How it Works
-
+As of right now, this application works by placing a csv titled `data.csv` in the static/csv folder. Merchant names are fetched from the `constants.py` file. 
+Run the project from the root folder with the command `python manage.py runserver`
+On the home page, after selecting the choice of merchants, an interactive map will display after a short delay.
+The rest of the page are static plots according to user preferance.
 
 ## Conclusion
 Using the data provided by Edison Trends, we created several graphical visualizations to present insights into the data. This includes graphs to explore the change in market share for select companies, show the overall change in sales across a specified date range, and a map showing the change in market share percentage for a company by the state. These were then integrated into a single front end web app, that allows the user to configure the parameters and generate each visualization. The data may be updated, to allow the production of up-to-date graphs.
