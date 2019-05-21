@@ -1,23 +1,33 @@
 from django.shortcuts import render
+from django.http import JsonResponse
 from django.http import HttpResponse
+from datetime import date, timedelta
 import os
+import random
 import folium
 from uszipcode import SearchEngine
+import pandas as pd
 import matplotlib
 matplotlib.use('PS')
+import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
 import scipy as scipy
 import datetime
+from wtforms import StringField
+from wtforms.validators import DataRequired
 import pandas as pd
 import matplotlib.pyplot as plt
 import math
 import json
 import edisontracker.constants as constants
 
+
+
 search = SearchEngine(simple_zipcode = True)
 
 dat = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
-
+state_zip = {}
 
 def home(request):
 
@@ -29,11 +39,10 @@ def getOptions(request):
     merchants = constants.merchants
     merchants.remove(choice)
     display = ""
-    import html
     for merchant in merchants:
         display += "<div class ='form-check form-check-inline' style= 'width: 500px'>"
-        display += "<input class ='form-check-input' type='checkbox' name='merchants' value=\"" + html.escape(merchant) + "\" id='merchants'>"
-        display += "<label class ='form-check-label' for ='merchants' >" + html.escape(merchant) + "</label> </div>"
+        display += "<input class ='form-check-input' type='checkbox' name='merchants' value=\"" + merchant + "\" id='merchants'>"
+        display += "<label class ='form-check-label' for ='merchants' >" + merchant + "</label> </div>"
     html = HttpResponse(display)
     return html
 
@@ -84,7 +93,7 @@ def plot_market_on_map(data, compare, to_plot):
     dat_state = dat_state.loc[dat_state['merchant_name'].isin(compare), :]
 
     # Add the state column
-    dat_state['state'] = dat_state['user_zip_code'].apply(lambda x: constants.find_state(x))
+    dat_state['state'] = dat_state['user_zip_code'].apply(lambda x: find_state(x))
 
     year_week = []
     day_to_week = {}
@@ -154,7 +163,7 @@ def plot_market_on_map(data, compare, to_plot):
         fill_opacity=0.8,
         line_opacity=0.6,
         threshold_scale=scale,
-        reset=True
+
 
     ).add_to(map_obj)
 
@@ -205,33 +214,22 @@ def market_share_change(dat):
 
     return changes
 
+def find_state(zip):
+    state = constants.state
+    get_full = {v: k for k, v in state.items()}
+
+    if zip in state_zip:
+        return state_zip[zip]
+    else:
+        state_abrv = search.by_zipcode(str(zip)).state
+        if state_abrv is not None:
+            state = get_full[state_abrv]
+            state_zip[zip] = state
+            return state
 
 def marketsale(request):
-    dat = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
 
-    # catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
-    #               "Food Delivery": ["Merchant 5", "Merchant 10", "Merchant 4"],
-    #               "Apparel": ["Merchant 23", "Merchant 9", "Merchant 16", "Merchant 21", "Merchant 15"],
-    #               "Footwear": ["Merchant 22", "Merchant 17"],
-    #               "Sportswear": ["Merchant 17", "Merchant 22", "Merchant 20"],
-    #               "Retail (General)": ["Merchant 1", "Merchant 12", "Merchant 8", "Merchant 2", "Merchant 13"],
-    #               "Grocery": ["Merchant 13", "Merchant 24", "Merchant 14"],
-    #               "Fast Food": ["Merchant 7", "Merchant 3", "Merchant 19"],
-    #               "Pizza": ["Merchant 7", "Merchant 3", "Merchant 11"]}
-    #
-    # merchantType = request.GET.get("category")
-    # start_date = request.GET.get("start_date")
-    # end_date = request.GET.get("end_date")
-    # merchants = []
-    #
-    # for item in catagories[merchantType]:
-    #     merchants.append(item)
-    # print(merchants)
-    # print(start_date)
-    # print(end_date)
 
-    # merchantType = []
-    # merchantType.append(request.GET.get("merchantChoice"))
     merchantType = request.GET.get("merchantChoice")
     merchants = json.loads(merchantType)
     print(merchants)
@@ -370,6 +368,7 @@ def loadBarPlotNumSales(request):
     # convert to datetime objects
     dat["email_day"] = pd.to_datetime(dat["email_day"])
 
+   #html = render('initial.html', select=build_options())
     html = render(request, 'edisontracker/barplotNumSales.html', {"select": build_options()})
     return html
 

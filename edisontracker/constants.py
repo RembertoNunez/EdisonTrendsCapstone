@@ -1,5 +1,5 @@
 
-categories = {"Electronics": ["Amazon", "Best Buy"], "Food Delivery": ["Grub Hub", "Door Dash", "Instacart"],
+categories = {"Electronics": ["Amazon", "Best Buy"], "Food Delivery": ["Grub Hub", "DoorDash", "Instacart"],
                   "Apparel": ["Ralph Lauren", "Nordstrom", "H&M", "Hot Topic", "Gap"], "Footwear": ["Adidas", "Nike"],
                   "Sportswear": ["Nike", "Adidas", "Under Armour"],
                   "Retail (General)": ["Amazon", "Kmart", "Target", "Walmart", "Costco"],
@@ -7,15 +7,14 @@ categories = {"Electronics": ["Amazon", "Best Buy"], "Food Delivery": ["Grub Hub
                   "Fast Food": ["Pizza Hut", "Domino's Pizza", "Panda Express"],
                   "Pizza": ["Pizza Hut", "Domino's Pizza", "Papa John's"]}
 
-merchants = ["Amazon", "Best Buy", "Grub Hub", "Door Dash", "Instacart",
+merchants = ["Amazon", "Best Buy", "Grub Hub", "DoorDash", "Instacart",
                   "Ralph Lauren", "Nordstrom", "H&M", "Hot Topic", "Gap","Adidas", "Nike",
                   "Nike", "Adidas", "Under Armour", "Kmart", "Target",
                   "Walmart", "Costco", "Publix", "Whole Foods Market", "Safeway",
                   "Pizza Hut", "Domino's Pizza", "Panda Express", "Papa John's"]
-state_zip = {}
 
-def find_state(zip):
-    state = {
+
+state = {
     'Alabama': 'AL',
     'Alaska': 'AK',
     'Arizona': 'AZ',
@@ -69,13 +68,3 @@ def find_state(zip):
     'Wisconsin': 'WI',
     'Wyoming': 'WY',
 }
-    get_full = {v: k for k, v in state.items()}
-
-    if zip in state_zip:
-        return state_zip[zip]
-    else:
-        state_abrv = search.by_zipcode(str(zip)).state
-        if state_abrv is not None:
-            state = get_full[state_abrv]
-            state_zip[zip] = state
-            return state
