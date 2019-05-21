@@ -1,1 +1,1 @@
-# EdisonTrendsCapstone
+# Edison Trends Capstone
