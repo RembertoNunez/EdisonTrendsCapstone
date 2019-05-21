@@ -1,54 +1,32 @@
 from django.shortcuts import render
-from django.http import JsonResponse
 from django.http import HttpResponse
-from datetime import date, timedelta
 import os
-import random
 import folium
 from uszipcode import SearchEngine
-import pandas as pd
 import matplotlib
 matplotlib.use('PS')
-import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
 import scipy as scipy
 import datetime
-from wtforms import StringField
-from wtforms.validators import DataRequired
 import pandas as pd
 import matplotlib.pyplot as plt
 import math
-
 import json
-
-
+import edisontracker.constants as constants
 
 search = SearchEngine(simple_zipcode = True)
 
 dat = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
-state_zip = {}
+
 
 def home(request):
-    categories = {"Electronics": ["Amazon", "Best Buy"], "Food Delivery": ["Grub Hub", "Door Dash", "Instacart"],
-                  "Apparel": ["Ralph Lauren", "Nordstrom", "H&M", "Hot Topic", "Gap"], "Footwear": ["Adidas", "Nike"],
-                  "Sportswear": ["Nike", "Adidas", "Under Armour"],
-                  "Retail (General)": ["Amazon", "Kmart", "Target", "Walmart", "Costco"],
-                  "Grocery": ["Publix", "Whole Foods Market", "Safeway"],
-                  "Fast Food": ["Pizza Hut", "Domino's Pizza", "Panda Express"],
-                  "Pizza": ["Pizza Hut", "Domino's Pizza", "Papa John's"]}
 
-    return render(request, 'edisontracker/index.html', {"categories": categories})
+
+    return render(request, 'edisontracker/index.html', {"categories": constants.categories})
 
 def getOptions(request):
     choice = request.GET.get("choice")
-    merchants = ["Amazon", "Best Buy", "Grub Hub", "Door Dash", "Instacart",
-                  "Ralph Lauren", "Nordstrom", "H&M", "Hot Topic", "Gap","Adidas", "Nike",
-                  "Nike", "Adidas", "Under Armour",
-                  "Amazon", "Kmart", "Target", "Walmart", "Costco",
-                  "Publix", "Whole Foods Market", "Safeway",
-                  "Pizza Hut", "Domino's Pizza", "Panda Express",
-                  "Pizza Hut", "Domino's Pizza", "Papa John's"]
+    merchants = constants.merchants
     merchants.remove(choice)
     display = ""
     for merchant in merchants:
@@ -60,41 +38,26 @@ def getOptions(request):
 
 # run with command: FLASK_APP=app.py; flask run
 def salesHome(request):
-    categories = {"Electronics": ["Amazon", "Best Buy"], "Food Delivery": ["Grub Hub", "Door Dash", "Instacart"],
-                  "Apparel": ["Ralph Lauren", "Nordstrom", "H&M", "Hot Topic", "Gap"], "Footwear": ["Adidas", "Nike"],
-                  "Sportswear": ["Nike", "Adidas", "Under Armour"],
-                  "Retail (General)": ["Amazon", "Kmart", "Target", "Walmart", "Costco"],
-                  "Grocery": ["Publix", "Whole Foods Market", "Safeway"],
-                  "Fast Food": ["Pizza Hut", "Domino's Pizza", "Panda Express"],
-                  "Pizza": ["Pizza Hut", "Domino's Pizza", "Papa John's"]}
-    return render(request, 'edisontracker/marketsales.html', {"categories": categories})
+
+    return render(request, 'edisontracker/marketsales.html', {"categories": constants.categories})
 
 def allSaleHome(request):
-    catagories = {"Electronics": ["Merchant 1", "Merchant 6"],
-                  "Food Delivery": ["Merchant 5", "Merchant 10", "Merchant 4"],
-                  "Apparel": ["Merchant 23", "Merchant 9", "Merchant 16", "Merchant 21", "Merchant 15"],
-                  "Footwear": ["Merchant 22", "Merchant 17"],
-                  "Sportswear": ["Merchant 17", "Merchant 22", "Merchant 20"],
-                  "Retail (General)": ["Merchant 1", "Merchant 12", "Merchant 8", "Merchant 2", "Merchant 13"],
-                  "Grocery": ["Merchant 13", "Merchant 24", "Merchant 14"],
-                  "Fast Food": ["Merchant 7", "Merchant 3", "Merchant 19"],
-                  "Pizza": ["Merchant 7", "Merchant 3", "Merchant 11"]}
 
-    html = render(request, 'edisontracker/salescompany.html', {"categories": catagories})
+    return render(request, 'edisontracker/salescompany.html', {"categories": constants.categories})
 
-    return html
+
 
 def mapGenerate(request):
     search = SearchEngine(simple_zipcode=True)
 
-    data = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
+
 
     to_plot = request.GET.get("to_plot")
     compare = request.GET.getlist("compare[]")
 
     compare.append(to_plot)
 
-    map_obj = plot_market_on_map(data, compare, to_plot)
+    map_obj = plot_market_on_map(dat, compare, to_plot)
 
     style_statement = '<style>.leaflet-control{color:#00FF00}</style>'
     map_obj.get_root().html.add_child(folium.Element(style_statement))
@@ -104,8 +67,7 @@ def mapGenerate(request):
     file.write(map_html)
     file.close()
 
-    html = HttpResponse(
-        "")
+    html = HttpResponse("")
 
     return html
 
@@ -121,7 +83,7 @@ def plot_market_on_map(data, compare, to_plot):
     dat_state = dat_state.loc[dat_state['merchant_name'].isin(compare), :]
 
     # Add the state column
-    dat_state['state'] = dat_state['user_zip_code'].apply(lambda x: find_state(x))
+    dat_state['state'] = dat_state['user_zip_code'].apply(lambda x: constants.find_state(x))
 
     year_week = []
     day_to_week = {}
@@ -242,71 +204,6 @@ def market_share_change(dat):
 
     return changes
 
-def find_state(zip):
-    state = {
-    'Alabama': 'AL',
-    'Alaska': 'AK',
-    'Arizona': 'AZ',
-    'Arkansas': 'AR',
-    'California': 'CA',
-    'Colorado': 'CO',
-    'Connecticut': 'CT',
-    'Delaware': 'DE',
-    'Florida': 'FL',
-    'Georgia': 'GA',
-    'Hawaii': 'HI',
-    'Idaho': 'ID',
-    'Illinois': 'IL',
-    'Indiana': 'IN',
-    'Iowa': 'IA',
-    'Kansas': 'KS',
-    'Kentucky': 'KY',
-    'Louisiana': 'LA',
-    'Maine': 'ME',
-    'Maryland': 'MD',
-    'Massachusetts': 'MA',
-    'Michigan': 'MI',
-    'Minnesota': 'MN',
-    'Mississippi': 'MS',
-    'Missouri': 'MO',
-    'Montana': 'MT',
-    'Nebraska': 'NE',
-    'Nevada': 'NV',
-    'New Hampshire': 'NH',
-    'New Jersey': 'NJ',
-    'New Mexico': 'NM',
-    'New York': 'NY',
-    'North Carolina': 'NC',
-    'North Dakota': 'ND',
-    'Ohio': 'OH',
-    'Oklahoma': 'OK',
-    'Oregon': 'OR',
-    'Pennsylvania': 'PA',
-    'Puerto Rico': 'PR',
-    'Rhode Island': 'RI',
-    'South Carolina': 'SC',
-    'South Dakota': 'SD',
-    'Tennessee': 'TN',
-    'Texas': 'TX',
-    'Utah': 'UT',
-    'Vermont': 'VT',
-    'Virginia': 'VA',
-    'Washington': 'WA',
-    'Washington DC': 'DC',
-    'West Virginia': 'WV',
-    'Wisconsin': 'WI',
-    'Wyoming': 'WY',
-}
-    get_full = {v: k for k, v in state.items()}
-
-    if zip in state_zip:
-        return state_zip[zip]
-    else:
-        state_abrv = search.by_zipcode(str(zip)).state
-        if state_abrv is not None:
-            state = get_full[state_abrv]
-            state_zip[zip] = state
-            return state
 
 def marketsale(request):
     dat = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
@@ -490,23 +387,17 @@ def build_options(feat = None ):
     return options
 
 def getMerchants(request):
-    catagories = {"Electronics": ["Amazon", "Best Buy"], "Food Delivery": ["Grub Hub", "Door Dash", "Instacart"],
-                  "Apparel": ["Ralph Lauren", "Nordstrom", "H&M", "Hot Topic", "Gap"], "Footwear": ["Adidas", "Nike"],
-                  "Sportswear": ["Nike", "Adidas", "Under Armour"],
-                  "Retail (General)": ["Amazon", "Kmart", "Target", "Walmart", "Costco"],
-                  "Grocery": ["Publix", "Whole Foods Market", "Safeway"],
-                  "Fast Food": ["Pizza Hut", "Domino's Pizza", "Panda Express"],
-                  "Pizza": ["Pizza Hut", "Domino's Pizza", "Papa John's"]}
 
     merchantType = request.GET.get("category")
     merchants = []
-    for item in catagories[merchantType]:
+    for item in constants.categories[merchantType]:
         merchants.append(item)
 
     display = "<select id = 'choice' class='custom-select my-1 mr-sm-2 mb-3' multiple>"
-
+    import html
     for merchant in merchants:
-        display += "<option class ='form-check-input' type='checkbox' name='merchants' value='" + merchant + "'>"+merchant+"</option>"
+        name = html.escape(merchant)
+        display += "<option class ='form-check-input' type='checkbox' name='merchants' value='" + name + "'>"+name+"</option>"
     display += "</select>"
 
     html = HttpResponse(display)

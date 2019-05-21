@@ -18,13 +18,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <!-- Custom styles for this template-->
   <link href="{% static 'edisontracker/css/styles.css' %}" rel="stylesheet">
-    <script>
-        var userPref= {
-            start:"",
-            end:"",
 
-        }
-    </script>
 </head>
 
 <body id="page-top">
@@ -52,7 +46,7 @@
           <li class="breadcrumb-item">
             <a >Dashboard</a>
           </li>
-          <li class="breadcrumb-item active">Sales All Companies</li>
+          <li class="breadcrumb-item active">Sales by Time</li>
         </ol>
 
         <!-- Page Content -->
@@ -111,11 +105,10 @@
        </div>
       </div>
     </div>
-      <!-- /.container-fluid -->
+
 
      <!-- Sticky Footer -->
         {% include "edisontracker/footer.html" with active="index" %}
-    <!-- /.content-wrapper -->
 
   </div>
   <!-- /#wrapper -->
@@ -126,31 +119,6 @@
 
         let i=0;
 
-
-
-
-        {#$("#time").change(function () {#}
-        {#     var current = new Date()#}
-        {#    var today = new Date();#}
-        {#    let option = $("#time").val();#}
-        {#    switch (option) {#}
-        {#        case "lastYear":#}
-        {#            today.setFullYear(today.getFullYear() - 1);#}
-        {##}
-        {#             break;#}
-        {#        case "2years":#}
-        {#             today.setFullYear(today.getFullYear() - 2);#}
-        {#             break;#}
-        {#        case "2years":#}
-        {#             today.setFullYear(today.getFullYear() - 5);#}
-        {#             break;#}
-        {#    }#}
-        {#     $('input[name="daterange"]').data('daterangepicker').setStartDate (today);#}
-        {#    $('input[name="daterange"]').data('daterangepicker').setEndDate (current);#}
-        {#    console.log(option);#}
-        {##}
-
-
         $("#formSubmit").click(function (event) {
             let date = $('#reportrange span').text().split(" - ");
             let fDate = moment(date[0],'MMMM DD, YYYY').format("'MM/DD/YYYY'");
@@ -158,8 +126,6 @@
             let merchantChoice = $("#merchant").val();
             i++;
             event.preventDefault();
-
-
 
             $.ajax({
                 type: "GET",
