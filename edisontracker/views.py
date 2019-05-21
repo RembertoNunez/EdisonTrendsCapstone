@@ -26,7 +26,7 @@ import edisontracker.constants as constants
 
 search = SearchEngine(simple_zipcode = True)
 
-dat = pd.read_csv('edisontracker/static/edisontracker/csv/anonymous_sample.csv')
+dat = pd.read_csv('edisontracker/static/edisontracker/csv/data.csv')
 state_zip = {}
 
 def home(request):
