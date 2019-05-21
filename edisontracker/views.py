@@ -29,10 +29,11 @@ def getOptions(request):
     merchants = constants.merchants
     merchants.remove(choice)
     display = ""
+    import html
     for merchant in merchants:
         display += "<div class ='form-check form-check-inline' style= 'width: 500px'>"
-        display += "<input class ='form-check-input' type='checkbox' name='merchants' value=\"" + merchant + "\" id='merchants'>"
-        display += "<label class ='form-check-label' for ='merchants' >" + merchant + "</label> </div>"
+        display += "<input class ='form-check-input' type='checkbox' name='merchants' value=\"" + html.escape(merchant) + "\" id='merchants'>"
+        display += "<label class ='form-check-label' for ='merchants' >" + html.escape(merchant) + "</label> </div>"
     html = HttpResponse(display)
     return html
 
@@ -369,7 +370,6 @@ def loadBarPlotNumSales(request):
     # convert to datetime objects
     dat["email_day"] = pd.to_datetime(dat["email_day"])
 
-   #html = render('initial.html', select=build_options())
     html = render(request, 'edisontracker/barplotNumSales.html', {"select": build_options()})
     return html
 
